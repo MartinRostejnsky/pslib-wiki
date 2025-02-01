@@ -24,13 +24,16 @@ import {BubbleMenu} from "@tiptap/extension-bubble-menu";
 import {DragHandle} from "@tiptap-pro/extension-drag-handle-react";
 import {useDebouncedCallback} from "use-debounce";
 import {Placeholder} from "@tiptap/extension-placeholder";
+import {saveDocument} from "@/app/actions";
 
-export default function Editor({content}: {content: string}) {
+export default function Editor({content, id}: {content: string, id: string}) {
+    const updateDocument = async (editor: EditorType) => {
+        const storable = editor.getHTML();
+        await saveDocument(id, storable);
+    };
+
     const updateDebounced = useDebouncedCallback(
-        (editor: EditorType) => {
-            const storable = editor.getHTML();
-            console.log(storable);
-        },
+        updateDocument,
         1000
     );
 
@@ -74,6 +77,13 @@ export default function Editor({content}: {content: string}) {
         content: content,
         onUpdate({editor}) {
             updateDebounced(editor);
+        },
+        async onBlur({editor}) {
+            await updateDocument(editor);
+        },
+        async onDestroy() {
+            if (!editor) return;
+            await updateDocument(editor);
         }
     });
 

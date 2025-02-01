@@ -14,6 +14,6 @@ export default async function Page({params}: { params: Promise<{ id: string }> }
     const document = rows[0];
 
     return (
-        <Editor content={document.content}/>
+        <Editor content={document.content} id={id}/>
     );
 }

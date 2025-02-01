@@ -23,3 +23,9 @@ export async function createDocument(name: string) {
         content: "<p></p>"
     });
 }
+
+export async function saveDocument(id: string, content: string) {
+    await db.update(Documents).set({
+        content: content
+    }).where(eq(Documents.id, id));
+}
