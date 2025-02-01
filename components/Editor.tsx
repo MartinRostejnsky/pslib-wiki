@@ -1,6 +1,6 @@
 "use client"
 
-import {BubbleMenu as BubbleMenuJsx, EditorContent, useEditor} from "@tiptap/react";
+import {BubbleMenu as BubbleMenuJsx, EditorContent, useEditor, Editor as EditorType} from "@tiptap/react";
 import CodeBlockShiki from "tiptap-extension-code-block-shiki";
 import {Blockquote} from "@tiptap/extension-blockquote";
 import {BulletList} from "@tiptap/extension-bullet-list";
@@ -22,8 +22,18 @@ import {History} from "@tiptap/extension-history";
 import {Highlight} from "@tiptap/extension-highlight";
 import {BubbleMenu} from "@tiptap/extension-bubble-menu";
 import {DragHandle} from "@tiptap-pro/extension-drag-handle-react";
+import {useDebouncedCallback} from "use-debounce";
+import {Placeholder} from "@tiptap/extension-placeholder";
 
-export default function Editor() {
+export default function Editor({content}: {content: string}) {
+    const updateDebounced = useDebouncedCallback(
+        (editor: EditorType) => {
+            const storable = editor.getHTML();
+            console.log(storable);
+        },
+        1000
+    );
+
     const editor = useEditor({
         extensions: [
             Blockquote,
@@ -38,6 +48,9 @@ export default function Editor() {
             ListItem,
             OrderedList,
             Paragraph,
+            Placeholder.configure({
+                emptyEditorClass: "is-editor-empty text-gray-500"
+            }),
             Text,
 
             Bold,
@@ -58,14 +71,13 @@ export default function Editor() {
                 class: 'prose prose-invert prose-base m-5 px-8 focus:outline-none',
             },
         },
-        content: `
-          <p>
-            Paragraph
-          </p>
-        `
+        content: content,
+        onUpdate({editor}) {
+            updateDebounced(editor);
+        }
     });
 
-    if (!editor) return ;
+    if (!editor) return;
 
     return (
         <div>

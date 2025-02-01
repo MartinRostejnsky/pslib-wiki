@@ -1,13 +1,40 @@
-import {Sidebar, SidebarContent, SidebarFooter, SidebarHeader} from "@/components/ui/sidebar";
+import {
+    Sidebar,
+    SidebarContent,
+    SidebarFooter,
+    SidebarGroup,
+    SidebarHeader,
+    SidebarMenu
+} from "@/components/ui/sidebar";
 import {SignedIn, SignedOut, SignInButton, UserButton} from "@clerk/nextjs";
 import {Button} from "@/components/ui/button";
+import {db} from "@/db/drizzle";
+import {Documents} from "@/db/schema";
+import Link from "next/link";
+import NewDocumentButton from "@/components/NewDocumentButton";
+
+function GetDocuments() {
+    return db.select({
+        id: Documents.id,
+        name: Documents.name
+    }).from(Documents).execute();
+}
 
 export default async function AppSidebar() {
+    const documents = await GetDocuments();
+
     return (
         <Sidebar>
             <SidebarHeader>
             </SidebarHeader>
             <SidebarContent>
+                <SidebarGroup>
+                    <SidebarMenu>
+                        {documents.map(item => (
+                            <Link key={item.id} href={`/doc/${item.id}`}>{item.name}</Link>
+                        ))}
+                    </SidebarMenu>
+                </SidebarGroup>
             </SidebarContent>
             <SidebarFooter>
                 <SignedOut>
@@ -16,7 +43,8 @@ export default async function AppSidebar() {
                     </SignInButton>
                 </SignedOut>
                 <SignedIn>
-                    <div className={"flex gap-2"}>
+                    <div>
+                        <NewDocumentButton />
                         <UserButton showName={true} appearance={{
                             elements: {
                                 rootBox: 'w-full h-8 transition-colors duration-250 rounded-md hover:bg-sidebar-accent',

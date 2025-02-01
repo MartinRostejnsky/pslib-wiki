@@ -86,3 +86,10 @@ body {
     @apply bg-background text-foreground;
   }
 }
+
+p.is-editor-empty:first-child::before {
+  content: attr(data-placeholder);
+  float: left;
+  height: 0;
+  pointer-events: none;
+}
