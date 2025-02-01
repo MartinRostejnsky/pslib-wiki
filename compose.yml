@@ -1,0 +1,16 @@
+services:
+  psql:
+    image: postgres:17.2
+    restart: always
+    shm_size: 128mb
+    ports:
+      - "5432:5432"
+    volumes:
+      - dbdata:/var/lib/postgresql/data
+    environment:
+      POSTGRES_USER: "wiki"
+      POSTGRES_PASSWORD: "wiki"
+      POSTGRES_DB: "wiki"
+
+volumes:
+  dbdata:
