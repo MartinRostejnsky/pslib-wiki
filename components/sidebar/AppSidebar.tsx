@@ -11,7 +11,7 @@ import {Button} from "@/components/ui/button";
 import {db} from "@/db/drizzle";
 import {Documents} from "@/db/schema";
 import NewDocumentButton from "@/components/sidebar/NewDocumentButton";
-import SidebarDocumentIcon from "@/components/sidebar/SidebarDocumentIcon";
+import DocumentButton from "@/components/sidebar/DocumentButton";
 
 function GetDocuments() {
     return db.select({
@@ -31,7 +31,7 @@ export default async function AppSidebar() {
                 <SidebarGroup>
                     <SidebarMenu>
                         {documents.map(item => (
-                            <SidebarDocumentIcon key={item.id} item={item} />
+                            <DocumentButton key={item.id} item={item} />
                         ))}
                     </SidebarMenu>
                 </SidebarGroup>

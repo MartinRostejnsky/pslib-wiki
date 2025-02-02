@@ -9,3 +9,7 @@ export async function UpdateDocumentName(id: string, name: string) {
         name: name
     }).where(eq(Documents.id, id));
 }
+
+export async function DeleteDocument(id: string) {
+    await db.delete(Documents).where(eq(Documents.id, id));
+}
