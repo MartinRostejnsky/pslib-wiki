@@ -2,7 +2,7 @@ import type {Metadata} from "next";
 import {Geist, Geist_Mono} from "next/font/google";
 import "./globals.css";
 import {ClerkProvider} from "@clerk/nextjs";
-import AppSidebar from "@/components/AppSidebar";
+import AppSidebar from "@/components/sidebar/AppSidebar";
 import {SidebarInset, SidebarProvider} from "@/components/ui/sidebar";
 import {dark} from "@clerk/themes";
 

@@ -10,8 +10,8 @@ import {SignedIn, SignedOut, SignInButton, UserButton} from "@clerk/nextjs";
 import {Button} from "@/components/ui/button";
 import {db} from "@/db/drizzle";
 import {Documents} from "@/db/schema";
-import Link from "next/link";
 import NewDocumentButton from "@/components/NewDocumentButton";
+import SidebarDocumentIcon from "@/components/sidebar/SidebarDocumentIcon";
 
 function GetDocuments() {
     return db.select({
@@ -31,7 +31,7 @@ export default async function AppSidebar() {
                 <SidebarGroup>
                     <SidebarMenu>
                         {documents.map(item => (
-                            <Link key={item.id} href={`/doc/${item.id}`}>{item.name}</Link>
+                            <SidebarDocumentIcon key={item.id} item={item} />
                         ))}
                     </SidebarMenu>
                 </SidebarGroup>
@@ -44,7 +44,7 @@ export default async function AppSidebar() {
                 </SignedOut>
                 <SignedIn>
                     <div>
-                        <NewDocumentButton />
+                        <NewDocumentButton/>
                         <UserButton showName={true} appearance={{
                             elements: {
                                 rootBox: 'w-full h-8 transition-colors duration-250 rounded-md hover:bg-sidebar-accent',
@@ -52,7 +52,7 @@ export default async function AppSidebar() {
                                 userButtonBox: 'w-full justify-between',
                                 userButtonOuterIdentifier: 'text-foreground text-sm'
                             }
-                        }} />
+                        }}/>
                     </div>
                 </SignedIn>
             </SidebarFooter>
