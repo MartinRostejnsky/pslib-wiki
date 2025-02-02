@@ -18,9 +18,11 @@ import {Label} from "@/components/ui/label";
 import {Button} from "@/components/ui/button";
 import {Input} from "@/components/ui/input";
 import {UpdateDocumentName} from "@/components/sidebar/actions";
+import {useRouter} from "next/navigation";
 
 export default function SidebarDocumentIcon({item}: { item: { id: string, name: string } }) {
     const [name, setName] = useState("");
+    const router = useRouter();
 
     return (
         <SidebarMenuItem key={item.id}>
@@ -58,7 +60,10 @@ export default function SidebarDocumentIcon({item}: { item: { id: string, name: 
                     </div>
                     <DialogFooter>
                         <DialogClose asChild>
-                            <Button type="submit" onClick={() => UpdateDocumentName(item.id, name)}>
+                            <Button type="submit" onClick={async () => {
+                                await UpdateDocumentName(item.id, name);
+                                router.refresh();
+                            }}>
                                 Save changes
                             </Button>
                         </DialogClose>

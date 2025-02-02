@@ -10,7 +10,7 @@ import {SignedIn, SignedOut, SignInButton, UserButton} from "@clerk/nextjs";
 import {Button} from "@/components/ui/button";
 import {db} from "@/db/drizzle";
 import {Documents} from "@/db/schema";
-import NewDocumentButton from "@/components/NewDocumentButton";
+import NewDocumentButton from "@/components/sidebar/NewDocumentButton";
 import SidebarDocumentIcon from "@/components/sidebar/SidebarDocumentIcon";
 
 function GetDocuments() {

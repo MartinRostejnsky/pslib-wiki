@@ -2,27 +2,35 @@
 
 import {useState} from "react";
 import {Button} from "@/components/ui/button";
-import {Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle, DialogTrigger} from "@/components/ui/dialog";
+import {
+    Dialog,
+    DialogClose,
+    DialogContent,
+    DialogFooter,
+    DialogHeader,
+    DialogTitle,
+    DialogTrigger
+} from "@/components/ui/dialog";
 import {Label} from "@/components/ui/label";
 import {Input} from "@/components/ui/input";
 import {SidebarMenuButton} from "@/components/ui/sidebar";
 import {Plus} from "lucide-react";
 import {createDocument} from "@/app/actions";
+import {useRouter} from "next/navigation";
 
 export default function NewDocumentButton() {
     const [name, setName] = useState("");
+    const router = useRouter();
 
-    function newDocument() {
-        createDocument(name)
-            .then(() => {
-                console.log("create a new document");
-            });
+    async function newDocument() {
+        await createDocument(name);
+        router.refresh();
     }
 
     return (
         <Dialog>
             <DialogTrigger asChild>
-                <SidebarMenuButton>New Document <Plus className={"ml-auto"} /></SidebarMenuButton>
+                <SidebarMenuButton>New Document <Plus className={"ml-auto"}/></SidebarMenuButton>
             </DialogTrigger>
             <DialogContent>
                 <DialogHeader>
@@ -36,7 +44,9 @@ export default function NewDocumentButton() {
                     </div>
                 </div>
                 <DialogFooter>
-                    <Button type={"submit"} onClick={newDocument}>Create</Button>
+                    <DialogClose asChild>
+                        <Button type={"submit"} onClick={newDocument}>Create</Button>
+                    </DialogClose>
                 </DialogFooter>
             </DialogContent>
         </Dialog>
