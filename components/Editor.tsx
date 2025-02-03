@@ -29,40 +29,44 @@ import {saveDocument} from "@/app/actions";
 import "katex/dist/katex.min.css";
 import {Mathematics} from "@tiptap-pro/extension-mathematics";
 import {createSuggestionsItems, Slash, SlashCmd, SlashCmdProvider} from "@harshtalks/slash-tiptap";
+import {FileHandler} from "@tiptap-pro/extension-file-handler";
+import {uploadFileToS3} from "@/app/doc/[id]/actions";
+import {Image} from "@tiptap/extension-image";
+
 
 const suggestions = createSuggestionsItems([
     {
         title: "Heading 1",
         searchTerms: ["heading", "h1"],
-        command: ({ editor, range }) => {
+        command: ({editor, range}) => {
             editor.chain().focus().deleteRange(range).setHeading({level: 1}).run();
         }
     },
     {
         title: "Heading 2",
         searchTerms: ["heading", "h2"],
-        command: ({ editor, range }) => {
+        command: ({editor, range}) => {
             editor.chain().focus().deleteRange(range).setHeading({level: 2}).run();
         }
     },
     {
         title: "Heading 3",
         searchTerms: ["heading", "h3"],
-        command: ({ editor, range }) => {
+        command: ({editor, range}) => {
             editor.chain().focus().deleteRange(range).setHeading({level: 3}).run();
         }
     },
     {
         title: "Bullet List",
         searchTerms: ["unordered", "point"],
-        command: ({ editor, range }) => {
+        command: ({editor, range}) => {
             editor.chain().focus().deleteRange(range).toggleBulletList().run();
         },
     },
     {
         title: "Ordered List",
         searchTerms: ["ordered", "point", "numbers"],
-        command: ({ editor, range }) => {
+        command: ({editor, range}) => {
             editor.chain().focus().deleteRange(range).toggleOrderedList().run();
         },
     },
@@ -87,9 +91,69 @@ export default function Editor({content, id}: { content: string, id: string }) {
                 defaultTheme: "tokyo-night"
             }),
             Document,
+            FileHandler.configure({
+                allowedMimeTypes: ['image/png', 'image/jpeg', 'image/gif', 'image/webp'],
+                onDrop: async (currentEditor, files, pos) => {
+                    for (const file of files) {
+                        const url = await uploadFileToS3(file.size, file.type);
+                        if (!url) return;
+
+                        await fetch(url.url, {
+                            method: "PUT",
+                            headers: {
+                                "Content-Type": file.type
+                            }
+                        });
+                        const finalUrl = new URL(url.url);
+
+                        // Insert the uploaded image into the editor
+                        currentEditor.chain()
+                            .insertContentAt(pos, {
+                                type: 'image',
+                                attrs: {
+                                    src: `${process.env.NEXT_PUBLIC_S3_DESTIONATION_URL}/${finalUrl.pathname}`,
+                                },
+                            })
+                            .focus()
+                            .run();
+                    }
+                },
+                onPaste: async (currentEditor, files, htmlContent) => {
+                    if (htmlContent) {
+                        console.log(htmlContent);
+                        return false;
+                    }
+
+                    for (const file of files) {
+                        const url = await uploadFileToS3(file.size, file.type);
+                        if (!url) return;
+
+                        await fetch(url.url, {
+                            method: "PUT",
+                            headers: {
+                                "Content-Type": file.type
+                            },
+                            body: file
+                        });
+                        const finalUrl = new URL(url.url);
+
+                        // Insert the uploaded image into the editor
+                        currentEditor.chain()
+                            .insertContentAt(currentEditor.state.selection.anchor, {
+                                type: 'image',
+                                attrs: {
+                                    src: `${process.env.NEXT_PUBLIC_S3_DESTINATION_URL}${finalUrl.pathname}`,
+                                },
+                            })
+                            .focus()
+                            .run();
+                    }
+                },
+            }),
             HardBreak,
             Heading.configure({levels: [1, 2, 3]}),
             HorizontalRule,
+            Image,
             ListItem,
             Mathematics,
             OrderedList,
@@ -133,7 +197,7 @@ export default function Editor({content, id}: { content: string, id: string }) {
         async onDestroy() {
             if (!editor) return;
             await updateDocument(editor);
-        }
+        },
     });
 
     if (!editor) return;
@@ -175,8 +239,10 @@ export default function Editor({content, id}: { content: string, id: string }) {
             <SlashCmdProvider>
                 <EditorContent editor={editor}/>
                 <SlashCmd.Root editor={editor}>
-                    <SlashCmd.Cmd className={"overflow-hidden rounded-md border bg-popover p-1 text-popover-foreground shadow-md"}>
-                        <SlashCmd.Empty className={"px-2 py-1.5 text-sm select-none"}>No commands available</SlashCmd.Empty>
+                    <SlashCmd.Cmd
+                        className={"overflow-hidden rounded-md border bg-popover p-1 text-popover-foreground shadow-md"}>
+                        <SlashCmd.Empty className={"px-2 py-1.5 text-sm select-none"}>No commands
+                            available</SlashCmd.Empty>
                         <SlashCmd.List>
                             {suggestions.map((item) => {
                                 return (
