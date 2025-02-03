@@ -12,12 +12,13 @@ import {db} from "@/db/drizzle";
 import {Documents} from "@/db/schema";
 import NewDocumentButton from "@/components/sidebar/NewDocumentButton";
 import DocumentButton from "@/components/sidebar/DocumentButton";
+import {headers} from "next/headers";
 
 function GetDocuments() {
     return db.select({
         id: Documents.id,
         name: Documents.name
-    }).from(Documents).execute();
+    }).from(Documents).orderBy(Documents.id).execute();
 }
 
 export default async function AppSidebar() {
@@ -31,7 +32,7 @@ export default async function AppSidebar() {
                 <SidebarGroup>
                     <SidebarMenu>
                         {documents.map(item => (
-                            <DocumentButton key={item.id} item={item} />
+                            <DocumentButton key={item.id} item={item}/>
                         ))}
                     </SidebarMenu>
                 </SidebarGroup>

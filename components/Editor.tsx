@@ -25,6 +25,7 @@ import {DragHandle} from "@tiptap-pro/extension-drag-handle-react";
 import {useDebouncedCallback} from "use-debounce";
 import {Placeholder} from "@tiptap/extension-placeholder";
 import {saveDocument} from "@/app/actions";
+import {useRouter} from "next/navigation";
 
 export default function Editor({content, id}: {content: string, id: string}) {
     const updateDocument = async (editor: EditorType) => {
