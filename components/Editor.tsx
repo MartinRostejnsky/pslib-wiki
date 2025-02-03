@@ -25,7 +25,9 @@ import {DragHandle} from "@tiptap-pro/extension-drag-handle-react";
 import {useDebouncedCallback} from "use-debounce";
 import {Placeholder} from "@tiptap/extension-placeholder";
 import {saveDocument} from "@/app/actions";
-import {useRouter} from "next/navigation";
+
+import "katex/dist/katex.min.css";
+import {Mathematics} from "@tiptap-pro/extension-mathematics";
 
 export default function Editor({content, id}: {content: string, id: string}) {
     const updateDocument = async (editor: EditorType) => {
@@ -50,6 +52,7 @@ export default function Editor({content, id}: {content: string, id: string}) {
             Heading.configure({levels: [1, 2, 3]}),
             HorizontalRule,
             ListItem,
+            Mathematics,
             OrderedList,
             Paragraph,
             Placeholder.configure({
