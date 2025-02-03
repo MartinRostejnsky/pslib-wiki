@@ -32,16 +32,25 @@ import {createSuggestionsItems, Slash, SlashCmd, SlashCmdProvider} from "@harsht
 
 const suggestions = createSuggestionsItems([
     {
-        title: "text",
-        searchTerms: ["paragraph"],
+        title: "Heading 1",
+        searchTerms: ["heading", "h1"],
         command: ({ editor, range }) => {
-            editor
-                .chain()
-                .focus()
-                .deleteRange(range)
-                .toggleNode("paragraph", "paragraph")
-                .run();
-        },
+            editor.chain().focus().deleteRange(range).setHeading({level: 1}).run();
+        }
+    },
+    {
+        title: "Heading 2",
+        searchTerms: ["heading", "h2"],
+        command: ({ editor, range }) => {
+            editor.chain().focus().deleteRange(range).setHeading({level: 2}).run();
+        }
+    },
+    {
+        title: "Heading 3",
+        searchTerms: ["heading", "h3"],
+        command: ({ editor, range }) => {
+            editor.chain().focus().deleteRange(range).setHeading({level: 3}).run();
+        }
     },
     {
         title: "Bullet List",
@@ -166,12 +175,13 @@ export default function Editor({content, id}: { content: string, id: string }) {
             <SlashCmdProvider>
                 <EditorContent editor={editor}/>
                 <SlashCmd.Root editor={editor}>
-                    <SlashCmd.Cmd>
-                        <SlashCmd.Empty>No commands available</SlashCmd.Empty>
+                    <SlashCmd.Cmd className={"overflow-hidden rounded-md border bg-popover p-1 text-popover-foreground shadow-md"}>
+                        <SlashCmd.Empty className={"px-2 py-1.5 text-sm select-none"}>No commands available</SlashCmd.Empty>
                         <SlashCmd.List>
                             {suggestions.map((item) => {
                                 return (
                                     <SlashCmd.Item
+                                        className={"relative flex cursor-default select-none items-center gap-2 rounded-sm px-2 py-1.5 text-sm outline-none transition-colors focus:bg-accent hover:bg-accent focus:text-accent-foreground hover:text-accent-foreground"}
                                         value={item.title}
                                         onCommand={(val) => {
                                             item.command(val);
