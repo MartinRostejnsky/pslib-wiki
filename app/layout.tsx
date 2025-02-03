@@ -3,7 +3,7 @@ import {Geist, Geist_Mono} from "next/font/google";
 import "./globals.css";
 import {ClerkProvider} from "@clerk/nextjs";
 import AppSidebar from "@/components/sidebar/AppSidebar";
-import {SidebarInset, SidebarProvider} from "@/components/ui/sidebar";
+import {SidebarInset, SidebarProvider, SidebarTrigger} from "@/components/ui/sidebar";
 import {dark} from "@clerk/themes";
 
 const geistSans = Geist({
@@ -38,6 +38,7 @@ export default function RootLayout({
             <SidebarProvider>
                 <AppSidebar/>
                 <SidebarInset>
+                    <SidebarTrigger className={"ml-4 mt-2 md:absolute"} />
                     {children}
                 </SidebarInset>
             </SidebarProvider>
