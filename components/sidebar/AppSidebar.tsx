@@ -12,7 +12,6 @@ import {db} from "@/db/drizzle";
 import {Documents} from "@/db/schema";
 import NewDocumentButton from "@/components/sidebar/NewDocumentButton";
 import DocumentButton from "@/components/sidebar/DocumentButton";
-import {headers} from "next/headers";
 
 function GetDocuments() {
     return db.select({
