@@ -23,8 +23,8 @@ export default function NewDocumentButton() {
     const router = useRouter();
 
     async function newDocument() {
-        await createDocument(name);
-        router.refresh();
+        const insertedId = await createDocument(name);
+        if (insertedId.id) router.push(`/doc/${insertedId.id}`);
     }
 
     return (

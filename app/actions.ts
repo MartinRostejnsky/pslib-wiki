@@ -7,10 +7,10 @@ import {eq} from "drizzle-orm";
 import {auth} from "@clerk/nextjs/server";
 
 export async function createDocument(name: string) {
-    const { userId } = await auth()
+    const {userId} = await auth()
 
     if (!userId) {
-        return { message: 'You must be signed in' }
+        return {message: 'You must be signed in', id: ""}
     }
 
     let id = uuidv4();
@@ -24,18 +24,23 @@ export async function createDocument(name: string) {
         }
     }
 
-    await db.insert(Documents).values({
+    const document = await db.insert(Documents).values({
         id: id,
         name: name,
         content: "<p></p>"
-    });
+    }).returning();
+
+    return {
+        message: "Create a new document",
+        id: document[0].id
+    };
 }
 
 export async function saveDocument(id: string, content: string) {
-    const { userId } = await auth()
+    const {userId} = await auth()
 
     if (!userId) {
-        return { message: 'You must be signed in' }
+        return {message: 'You must be signed in'}
     }
 
     await db.update(Documents).set({
