@@ -28,8 +28,38 @@ import {saveDocument} from "@/app/actions";
 
 import "katex/dist/katex.min.css";
 import {Mathematics} from "@tiptap-pro/extension-mathematics";
+import {createSuggestionsItems, Slash, SlashCmd, SlashCmdProvider} from "@harshtalks/slash-tiptap";
 
-export default function Editor({content, id}: {content: string, id: string}) {
+const suggestions = createSuggestionsItems([
+    {
+        title: "text",
+        searchTerms: ["paragraph"],
+        command: ({ editor, range }) => {
+            editor
+                .chain()
+                .focus()
+                .deleteRange(range)
+                .toggleNode("paragraph", "paragraph")
+                .run();
+        },
+    },
+    {
+        title: "Bullet List",
+        searchTerms: ["unordered", "point"],
+        command: ({ editor, range }) => {
+            editor.chain().focus().deleteRange(range).toggleBulletList().run();
+        },
+    },
+    {
+        title: "Ordered List",
+        searchTerms: ["ordered", "point", "numbers"],
+        command: ({ editor, range }) => {
+            editor.chain().focus().deleteRange(range).toggleOrderedList().run();
+        },
+    },
+]);
+
+export default function Editor({content, id}: { content: string, id: string }) {
     const updateDocument = async (editor: EditorType) => {
         const storable = editor.getHTML();
         await saveDocument(id, storable);
@@ -56,7 +86,13 @@ export default function Editor({content, id}: {content: string, id: string}) {
             OrderedList,
             Paragraph,
             Placeholder.configure({
+                placeholder: "Press / to see available commands",
                 emptyEditorClass: "is-editor-empty text-gray-500"
+            }),
+            Slash.configure({
+                suggestion: {
+                    items: () => suggestions,
+                },
             }),
             Text,
 
@@ -95,8 +131,11 @@ export default function Editor({content, id}: {content: string, id: string}) {
 
     return (
         <div>
-            <DragHandle className={"flex items-center justify-center bg-gray-500 rounded-md border border-gray-700 w-6 h-6"} editor={editor}>
-                <svg className={"w-4 h-4"} xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth="1.5"
+            <DragHandle
+                className={"flex items-center justify-center bg-gray-500 rounded-md border border-gray-700 w-6 h-6"}
+                editor={editor}>
+                <svg className={"w-4 h-4"} xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"
+                     strokeWidth="1.5"
                      stroke="currentColor">
                     <path strokeLinecap="round" strokeLinejoin="round" d="M3.75 9h16.5m-16.5 6.75h16.5"/>
                 </svg>
@@ -124,9 +163,29 @@ export default function Editor({content, id}: {content: string, id: string}) {
                         </button>
                     </div>
                 </BubbleMenuJsx>}
-            <EditorContent
-                editor={editor}
-            />
+            <SlashCmdProvider>
+                <EditorContent editor={editor}/>
+                <SlashCmd.Root editor={editor}>
+                    <SlashCmd.Cmd>
+                        <SlashCmd.Empty>No commands available</SlashCmd.Empty>
+                        <SlashCmd.List>
+                            {suggestions.map((item) => {
+                                return (
+                                    <SlashCmd.Item
+                                        value={item.title}
+                                        onCommand={(val) => {
+                                            item.command(val);
+                                        }}
+                                        key={item.title}
+                                    >
+                                        <p>{item.title}</p>
+                                    </SlashCmd.Item>
+                                );
+                            })}
+                        </SlashCmd.List>
+                    </SlashCmd.Cmd>
+                </SlashCmd.Root>
+            </SlashCmdProvider>
         </div>
     )
 }
