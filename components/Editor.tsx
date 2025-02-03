@@ -71,7 +71,7 @@ export default function Editor({content, id}: {content: string, id: string}) {
         shouldRerenderOnTransaction: true,
         editorProps: {
             attributes: {
-                class: 'prose prose-invert prose-base m-5 px-8 focus:outline-none',
+                class: 'prose prose-invert prose-base prose-p:mt-0 prose-headings:mb-4 prose-p:mb-2 m-5 px-8 focus:outline-none',
             },
         },
         content: content,
