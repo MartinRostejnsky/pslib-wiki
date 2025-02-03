@@ -4,8 +4,15 @@ import {db} from "@/db/drizzle";
 import {Documents} from "@/db/schema";
 import {uuidv4} from "lib0/random";
 import {eq} from "drizzle-orm";
+import {auth} from "@clerk/nextjs/server";
 
 export async function createDocument(name: string) {
+    const { userId } = await auth()
+
+    if (!userId) {
+        return { message: 'You must be signed in' }
+    }
+
     let id = uuidv4();
     let safe = false;
     while (!safe) {
@@ -25,6 +32,12 @@ export async function createDocument(name: string) {
 }
 
 export async function saveDocument(id: string, content: string) {
+    const { userId } = await auth()
+
+    if (!userId) {
+        return { message: 'You must be signed in' }
+    }
+
     await db.update(Documents).set({
         content: content
     }).where(eq(Documents.id, id));
