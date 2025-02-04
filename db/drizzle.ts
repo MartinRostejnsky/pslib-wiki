@@ -1,4 +1,5 @@
 import {drizzle} from "drizzle-orm/neon-http";
+import * as schema from './schema';
 
 let url = process.env.DATABASE_URL;
 if (!url) {
@@ -6,4 +7,4 @@ if (!url) {
     url = "";
 }
 
-export const db = drizzle(url);
+export const db = drizzle(url, {schema});
