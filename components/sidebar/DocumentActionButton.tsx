@@ -40,7 +40,7 @@ export default function DocumentActionButton({item, folders}: { item: { id: stri
             <AlertDialog>
                 <DropdownMenu>
                     <DropdownMenuTrigger asChild>
-                        <SidebarMenuAction>
+                        <SidebarMenuAction className={"right-3"}>
                             <MoreHorizontal/>
                         </SidebarMenuAction>
                     </DropdownMenuTrigger>
