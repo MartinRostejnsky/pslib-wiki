@@ -16,12 +16,15 @@ import {Input} from "@/components/ui/input";
 import {SidebarMenuButton} from "@/components/ui/sidebar";
 import {Plus} from "lucide-react";
 import {createFolder} from "@/app/actions";
+import { useRouter } from "next/navigation";
 
 export default function NewFolderButton() {
     const [name, setName] = useState("");
+    const router = useRouter();
 
     async function newFolder() {
         await createFolder(name);
+        router.refresh();
     }
 
     return (

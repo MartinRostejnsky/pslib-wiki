@@ -29,7 +29,7 @@ import {MoreHorizontal} from "lucide-react";
 import {Label} from "@/components/ui/label";
 import {Input} from "@/components/ui/input";
 import {Button} from "@/components/ui/button";
-import {DeleteDocument, UpdateDocumentName} from "@/components/sidebar/actions";
+import {DeleteDocument, MoveDocument, UpdateDocumentName} from "@/components/sidebar/actions";
 
 export default function DocumentActionButton({item, folders}: { item: { id: string, name: string }, folders: {id: string, name: string}[] }) {
     const [name, setName] = useState("");
@@ -60,7 +60,10 @@ export default function DocumentActionButton({item, folders}: { item: { id: stri
                             <DropdownMenuPortal>
                                 <DropdownMenuSubContent>
                                     {folders.map((folder) => (
-                                        <DropdownMenuItem key={folder.id}>{folder.name}</DropdownMenuItem>
+                                        <DropdownMenuItem key={folder.id} onClick={async () => {
+                                            await MoveDocument(item.id, folder.id);
+                                            router.refresh();
+                                        }}>{folder.name}</DropdownMenuItem>
                                     ))}
                                 </DropdownMenuSubContent>
                             </DropdownMenuPortal>

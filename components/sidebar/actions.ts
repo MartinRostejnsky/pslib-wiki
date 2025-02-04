@@ -26,3 +26,15 @@ export async function DeleteDocument(id: string) {
 
     await db.delete(Documents).where(eq(Documents.id, id));
 }
+
+export async function MoveDocument(id: string, folderId: string) {
+    const { userId } = await auth()
+
+    if (!userId) {
+        return { message: 'You must be signed in' }
+    }
+
+    await db.update(Documents).set({
+        folderId: folderId
+    }).where(eq(Documents.id, id));
+}
