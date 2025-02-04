@@ -17,15 +17,21 @@ import {
     AlertDialogTitle,
     AlertDialogTrigger
 } from "@/components/ui/alert-dialog";
-import {DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger} from "@/components/ui/dropdown-menu";
+import {
+    DropdownMenu,
+    DropdownMenuContent,
+    DropdownMenuItem, DropdownMenuPortal,
+    DropdownMenuSub, DropdownMenuSubContent, DropdownMenuSubTrigger,
+    DropdownMenuTrigger
+} from "@/components/ui/dropdown-menu";
 import {SidebarMenuAction} from "@/components/ui/sidebar";
 import {MoreHorizontal} from "lucide-react";
 import {Label} from "@/components/ui/label";
 import {Input} from "@/components/ui/input";
 import {Button} from "@/components/ui/button";
-import {DeleteDocument, UpdateDocumentName} from "@/components/sidebar/actions";
+import {DeleteDocument, MoveDocument, UpdateDocumentName} from "@/components/sidebar/actions";
 
-export default function DocumentActionButton({item}: { item: { id: string, name: string } }) {
+export default function DocumentActionButton({item, folders}: { item: { id: string, name: string }, folders: {id: string, name: string}[] }) {
     const [name, setName] = useState("");
     const router = useRouter();
 
@@ -34,7 +40,7 @@ export default function DocumentActionButton({item}: { item: { id: string, name:
             <AlertDialog>
                 <DropdownMenu>
                     <DropdownMenuTrigger asChild>
-                        <SidebarMenuAction>
+                        <SidebarMenuAction className={"right-3"}>
                             <MoreHorizontal/>
                         </SidebarMenuAction>
                     </DropdownMenuTrigger>
@@ -49,6 +55,23 @@ export default function DocumentActionButton({item}: { item: { id: string, name:
                                 <span>Delete Document</span>
                             </DropdownMenuItem>
                         </AlertDialogTrigger>
+                        <DropdownMenuSub>
+                            <DropdownMenuSubTrigger>Move to</DropdownMenuSubTrigger>
+                            <DropdownMenuPortal>
+                                <DropdownMenuSubContent>
+                                    {folders.map((folder) => (
+                                        <DropdownMenuItem key={folder.id} onClick={async () => {
+                                            await MoveDocument(item.id, folder.id);
+                                            router.refresh();
+                                        }}>{folder.name}</DropdownMenuItem>
+                                    ))}
+                                    <DropdownMenuItem onClick={async () => {
+                                        await MoveDocument(item.id, null);
+                                        router.refresh();
+                                    }}>Unassign</DropdownMenuItem>
+                                </DropdownMenuSubContent>
+                            </DropdownMenuPortal>
+                        </DropdownMenuSub>
                     </DropdownMenuContent>
                 </DropdownMenu>
                 <DialogContent className="sm:max-w-[425px]">
