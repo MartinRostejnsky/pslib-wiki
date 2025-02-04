@@ -38,12 +38,11 @@ export default function RootLayout({
             <SidebarProvider>
                 <AppSidebar/>
                 <SidebarInset>
-                    <SidebarTrigger className={"ml-4 mt-2 md:absolute md:left-4 md:top-4"} />
+                    <SidebarTrigger className={"ml-4 mt-2 md:absolute md:left-4 md:top-4"}/>
                     {children}
                 </SidebarInset>
             </SidebarProvider>
-
-u           </body>
+            </body>
             </html>
         </ClerkProvider>
     );
