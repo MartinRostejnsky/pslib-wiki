@@ -40,12 +40,7 @@ async function getFolders() {
 
 export default async function AppSidebar() {
     const {folders, orphans} = await getFolderContents();
-    const folderNames = await getFolders() as {id: string | null, name: string}[];
-
-    folderNames.push({
-        id: null,
-        name: "Unassign"
-    });
+    const folderNames = await getFolders();
 
     return (
         <Sidebar>

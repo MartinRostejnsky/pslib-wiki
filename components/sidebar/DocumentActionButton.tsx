@@ -65,6 +65,10 @@ export default function DocumentActionButton({item, folders}: { item: { id: stri
                                             router.refresh();
                                         }}>{folder.name}</DropdownMenuItem>
                                     ))}
+                                    <DropdownMenuItem onClick={async () => {
+                                        await MoveDocument(item.id, null);
+                                        router.refresh();
+                                    }}>Unassign</DropdownMenuItem>
                                 </DropdownMenuSubContent>
                             </DropdownMenuPortal>
                         </DropdownMenuSub>

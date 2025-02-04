@@ -27,7 +27,7 @@ export async function DeleteDocument(id: string) {
     await db.delete(Documents).where(eq(Documents.id, id));
 }
 
-export async function MoveDocument(id: string, folderId: string) {
+export async function MoveDocument(id: string, folderId: string | null) {
     const { userId } = await auth()
 
     if (!userId) {
