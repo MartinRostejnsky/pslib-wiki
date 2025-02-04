@@ -5,6 +5,7 @@ import {ClerkProvider} from "@clerk/nextjs";
 import AppSidebar from "@/components/sidebar/AppSidebar";
 import {SidebarInset, SidebarProvider, SidebarTrigger} from "@/components/ui/sidebar";
 import {dark} from "@clerk/themes";
+import {SpeedInsights} from "@vercel/speed-insights/next";
 
 const geistSans = Geist({
     variable: "--font-geist-sans",
@@ -42,6 +43,7 @@ export default function RootLayout({
                     {children}
                 </SidebarInset>
             </SidebarProvider>
+            <SpeedInsights />
             </body>
             </html>
         </ClerkProvider>
