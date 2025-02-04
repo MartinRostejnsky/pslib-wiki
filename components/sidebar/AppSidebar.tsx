@@ -14,7 +14,7 @@ import NewFolderButton from "@/components/sidebar/NewFolderButton";
 import {Collapsible, CollapsibleContent, CollapsibleTrigger} from "@/components/ui/collapsible";
 import {ChevronDown} from "lucide-react";
 import {db} from "@/db/drizzle";
-import {Documents} from "@/db/schema";
+import {Documents, Folders} from "@/db/schema";
 import {isNull} from "drizzle-orm";
 
 async function getFolderContents() {
@@ -35,8 +35,18 @@ async function getFolderContents() {
     }
 }
 
+async function getFolders() {
+    return db.select().from(Folders);
+}
+
 export default async function AppSidebar() {
     const {folders, orphans} = await getFolderContents();
+    const folderNames = await getFolders();
+
+    folderNames.push({
+        id: "null",
+        name: "Unassign"
+    });
 
     return (
         <Sidebar>
@@ -58,7 +68,7 @@ export default async function AppSidebar() {
                                     <CollapsibleContent>
                                         <SidebarGroupContent>
                                             {folder.documents.map((document) => (
-                                                <DocumentButton key={document.id} item={document}/>
+                                                <DocumentButton key={document.id} item={document} folders={folderNames}/>
                                             ))}
                                         </SidebarGroupContent>
                                     </CollapsibleContent>
@@ -69,7 +79,7 @@ export default async function AppSidebar() {
                         {/* Render documents without a folder */}
                         {orphans.length > 0 &&
                             orphans.map(item => (
-                                <DocumentButton key={item.id} item={item}/>
+                                <DocumentButton key={item.id} item={item} folders={folderNames}/>
                             ))
                         }
                     </SidebarMenu>

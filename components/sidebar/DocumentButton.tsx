@@ -6,7 +6,7 @@ import {SignedIn} from "@clerk/nextjs";
 import DocumentActionButton from "@/components/sidebar/DocumentActionButton";
 import {usePathname} from "next/navigation";
 
-export default function DocumentButton({item}: { item: { id: string, name: string }}) {
+export default function DocumentButton({item, folders}: { item: { id: string, name: string }, folders: {id: string, name: string}[] }) {
     const pathname = usePathname();
 
     return (
@@ -15,7 +15,7 @@ export default function DocumentButton({item}: { item: { id: string, name: strin
                 <Link href={`/doc/${item.id}`}>{item.name}</Link>
             </SidebarMenuButton>
             <SignedIn>
-                <DocumentActionButton item={item} />
+                <DocumentActionButton item={item} folders={folders} />
             </SignedIn>
         </SidebarMenuItem>
     )
