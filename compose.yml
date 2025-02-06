@@ -1,16 +1,19 @@
 services:
-  psql:
-    image: postgres:17.2
-    restart: always
-    shm_size: 128mb
+  surrealdb:
+    env_file:
+      - .env
+    entrypoint:
+      - /surreal
+      - start
+      - --user
+      - $DB_USER
+      - --pass
+      - $DB_PASSWORD
+    image: surrealdb/surrealdb:v2.1
     ports:
-      - "5432:5432"
+      - 8000:8000
     volumes:
-      - dbdata:/var/lib/postgresql/data
-    environment:
-      POSTGRES_USER: "wiki"
-      POSTGRES_PASSWORD: "wiki"
-      POSTGRES_DB: "wiki"
+      - dbdata:/mydata
 
 volumes:
   dbdata:
