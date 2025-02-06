@@ -44,6 +44,8 @@
     "katex": "^0.16.21",
     "lucide-react": "^0.474.0",
     "next": "15.1.6",
+    "prettier": "^3.4.2",
+    "prettier-plugin-tailwindcss": "^0.6.11",
     "react": "^19.0.0",
     "react-dom": "^19.0.0",
     "shiki": "^1.29.2",
