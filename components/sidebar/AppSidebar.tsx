@@ -15,6 +15,7 @@ import {ChevronDown} from "lucide-react";
 import {db} from "@/db/drizzle";
 import {Documents, Folders} from "@/db/schema";
 import {isNull} from "drizzle-orm";
+import {Skeleton} from "@/components/ui/skeleton";
 
 async function getFolderContents() {
     const folders = await db.query.Folders.findMany({
