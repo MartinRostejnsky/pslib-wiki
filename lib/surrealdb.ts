@@ -32,7 +32,10 @@ export async function getDb() {
 async function runMigrations(db: Surreal) {
   try {
     await db.query(
-      "DEFINE TABLE IF NOT EXISTS documents SCHEMAFULL;" +
+      "DEFINE TABLE IF NOT EXISTS folders SCHEMAFULL;" +
+        "DEFINE FIELD IF NOT EXISTS name ON TABLE folders TYPE string;" +
+        "DEFINE FIELD IF NOT EXISTS createdAt ON TABLE folders TYPE datetime DEFAULT time::now() READONLY;" +
+        "DEFINE TABLE IF NOT EXISTS documents SCHEMAFULL;" +
         "DEFINE FIELD IF NOT EXISTS name ON TABLE documents TYPE string;" +
         "DEFINE FIELD IF NOT EXISTS content ON TABLE documents TYPE string;" +
         "DEFINE FIELD IF NOT EXISTS createdAt ON TABLE documents TYPE datetime DEFAULT time::now() READONLY;",

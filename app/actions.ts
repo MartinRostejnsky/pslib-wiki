@@ -1,79 +1,57 @@
-"use server"
+"use server";
 
-import {db} from "@/db/drizzle";
-import {Documents, Folders} from "@/db/schema";
-import {uuidv4} from "lib0/random";
-import {eq} from "drizzle-orm";
-import {auth} from "@clerk/nextjs/server";
+import { auth } from "@clerk/nextjs/server";
+import { getDb } from "@/lib/surrealdb";
+import { Document, Folder } from "@/lib/types";
 
 export async function createDocument(name: string) {
-    const {userId} = await auth()
+  const { userId } = await auth();
 
-    if (!userId) {
-        return {message: 'You must be signed in', id: ""}
-    }
+  if (!userId) {
+    return { message: "You must be signed in", id: "" };
+  }
 
-    let id = uuidv4();
-    let safe = false;
-    while (!safe) {
-        const row = await db.select().from(Documents).where(eq(Documents.id, id)).limit(1).execute();
-        if (row.length === 0) {
-            safe = true;
-        } else {
-            id = uuidv4();
-        }
-    }
+  const db = await getDb();
+  const [document] = await db.create<Document>("documents", {
+    name: name,
+    content: "<p></p>",
+    folderId: "",
+  } as unknown as Document);
 
-    const document = await db.insert(Documents).values({
-        id: id,
-        name: name,
-        content: "<p></p>",
-        folderId: null
-    }).returning();
-
-    return {
-        message: "created a new document",
-        id: document[0].id
-    };
+  return {
+    message: "created a new document",
+    id: document.id.id,
+  };
 }
 
-
 export async function createFolder(name: string) {
-    const {userId} = await auth()
+  const { userId } = await auth();
 
-    if (!userId) {
-        return {message: 'You must be signed in', id: ""}
-    }
+  if (!userId) {
+    return { message: "You must be signed in", id: "" };
+  }
 
-    let id = uuidv4();
-    let safe = false;
-    while (!safe) {
-        const row = await db.select().from(Folders).where(eq(Folders.id, id)).limit(1).execute();
-        if (row.length === 0) {
-            safe = true;
-        } else {
-            id = uuidv4();
-        }
-    }
+  const db = await getDb();
+  await db.create<Folder>("folders", {
+    name: name,
+  } as unknown as Folder);
 
-    await db.insert(Folders).values({
-        id: id,
-        name: name,
-    });
-
-    return {
-        message: "created a new folder",
-    };
+  return {
+    message: "created a new folder",
+  };
 }
 
 export async function saveDocument(id: string, content: string) {
-    const {userId} = await auth()
+  const { userId } = await auth();
 
-    if (!userId) {
-        return {message: 'You must be signed in'}
-    }
+  if (!userId) {
+    return { message: "You must be signed in" };
+  }
 
-    await db.update(Documents).set({
-        content: content
-    }).where(eq(Documents.id, id));
+  // await db
+  //   .update(Documents)
+  //   .set({
+  //     content: content,
+  //   })
+  //   .where(eq(Documents.id, id));
 }

@@ -2,7 +2,6 @@ import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 import { ClerkProvider } from "@clerk/nextjs";
-import AppSidebar from "@/components/sidebar/AppSidebar";
 import {
   SidebarInset,
   SidebarProvider,
@@ -10,6 +9,7 @@ import {
 } from "@/components/ui/sidebar";
 import { dark } from "@clerk/themes";
 import { SpeedInsights } from "@vercel/speed-insights/next";
+import AppSidebar from "@/components/sidebar/AppSidebar";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -42,7 +42,7 @@ export default function RootLayout({
           className={`${geistSans.variable} ${geistMono.variable} dark bg-background antialiased`}
         >
           <SidebarProvider>
-            {/*<AppSidebar/>*/}
+            <AppSidebar />
             <SidebarInset>
               <SidebarTrigger
                 className={"ml-4 mt-2 md:absolute md:left-4 md:top-4"}
