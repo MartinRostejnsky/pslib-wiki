@@ -1,9 +1,10 @@
-"use server";
-
 import { Document } from "./types";
 import { Surreal } from "surrealdb";
 
 let db: Surreal;
+export const DOCUMENTS_NAME = "documents";
+export const FOLDERS_NAME = "folders";
+export const FOLDER_CONTAINS_NAME = "folderContains";
 
 export async function getDb() {
   if (db) return db;
@@ -32,13 +33,13 @@ export async function getDb() {
 async function runMigrations(db: Surreal) {
   try {
     await db.query(
-      "DEFINE TABLE IF NOT EXISTS folders SCHEMAFULL;" +
-        "DEFINE FIELD IF NOT EXISTS name ON TABLE folders TYPE string;" +
-        "DEFINE FIELD IF NOT EXISTS createdAt ON TABLE folders TYPE datetime DEFAULT time::now() READONLY;" +
-        "DEFINE TABLE IF NOT EXISTS documents SCHEMAFULL;" +
-        "DEFINE FIELD IF NOT EXISTS name ON TABLE documents TYPE string;" +
-        "DEFINE FIELD IF NOT EXISTS content ON TABLE documents TYPE string;" +
-        "DEFINE FIELD IF NOT EXISTS createdAt ON TABLE documents TYPE datetime DEFAULT time::now() READONLY;",
+      `DEFINE TABLE IF NOT EXISTS ${FOLDERS_NAME} SCHEMAFULL;` +
+        `DEFINE FIELD IF NOT EXISTS name ON TABLE ${FOLDERS_NAME} TYPE string;` +
+        `DEFINE FIELD IF NOT EXISTS createdAt ON TABLE ${FOLDERS_NAME} TYPE datetime DEFAULT time::now() READONLY;` +
+        `DEFINE TABLE IF NOT EXISTS ${DOCUMENTS_NAME} SCHEMAFULL;` +
+        `DEFINE FIELD IF NOT EXISTS name ON TABLE ${DOCUMENTS_NAME} TYPE string;` +
+        `DEFINE FIELD IF NOT EXISTS content ON TABLE ${DOCUMENTS_NAME} TYPE string;` +
+        `DEFINE FIELD IF NOT EXISTS createdAt ON TABLE ${DOCUMENTS_NAME} TYPE datetime DEFAULT time::now() READONLY;`,
     );
   } catch (migrationError) {
     console.error("Migration error:", migrationError);

@@ -1,13 +1,13 @@
 import Editor from "@/components/Editor";
 import { SignedIn, SignedOut } from "@clerk/nextjs";
-import { getDb } from "@/lib/surrealdb";
+import { DOCUMENTS_NAME, getDb } from "@/lib/surrealdb";
 import { Document } from "@/lib/types";
 import { RecordId } from "surrealdb";
 import { redirect } from "next/navigation";
 
 async function getDocument(id: string) {
   const db = await getDb();
-  return db.select<Document>(new RecordId("documents", id));
+  return db.select<Document>(new RecordId(DOCUMENTS_NAME, id));
 }
 
 export default async function Page({
@@ -17,10 +17,7 @@ export default async function Page({
 }) {
   const id = (await params).id;
 
-  const row = await getDocument(id).catch((err) => {
-    console.error(err);
-    redirect("/");
-  });
+  const row = await getDocument(id);
   if (!row) {
     redirect("/");
   }
