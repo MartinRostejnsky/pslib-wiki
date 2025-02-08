@@ -21,22 +21,43 @@ import {
 } from "@/components/ui/collapsible";
 import { ChevronDown } from "lucide-react";
 import { isNull } from "drizzle-orm";
-import { getDb } from "@/lib/surrealdb";
+import {
+  DOCUMENTS_NAME,
+  FOLDER_CONTAINS_NAME,
+  FOLDERS_NAME,
+  getDb,
+} from "@/lib/surrealdb";
 import { Document, Folder } from "@/lib/types";
 
+interface FolderDocuments extends Folder {
+  documents: Document[];
+}
+
 async function getFolderContents() {
-  // const folders = await db.query.Folders.findMany({
-  //   with: {
-  //     documents: true,
-  //   },
-  //   orderBy: (folders) => folders.id,
-  // });
-  //
-  // const orphans = await db
-  //   .select()
-  //   .from(Documents)
-  //   .where(isNull(Documents.folderId));
   const db = await getDb();
+  const folders = await db
+    .query<[FolderDocuments[]]>(
+      `SELECT *, (SELECT * FROM ->folderContains ->documents) AS documents
+       FROM folders`,
+    )
+    .then(([folders]) => {
+      return folders.map((items) => {
+        return {
+          id: items.id.toString(),
+          name: items.name,
+          documents: items.documents.map((document) => {
+            return {
+              id: document.id.toString(),
+              name: document.name,
+              content: document.content,
+              createdAt: document.createdAt,
+            };
+          }),
+          createdAt: items.createdAt,
+        };
+      });
+    });
+
   const orphans = await db.select<Document>("documents").then((documents) => {
     return documents.map((document) => {
       return {
@@ -47,6 +68,7 @@ async function getFolderContents() {
   });
 
   return {
+    folders,
     orphans,
   };
 }
@@ -63,7 +85,7 @@ async function getFolders() {
 }
 
 export default async function AppSidebar() {
-  const { orphans } = await getFolderContents();
+  const { folders, orphans } = await getFolderContents();
   const folderNames = await getFolders();
 
   return (
@@ -72,39 +94,39 @@ export default async function AppSidebar() {
       <SidebarContent>
         <SidebarGroup>
           <SidebarMenu>
-            {/*  {folders.map((folder) => (*/}
-            {/*    <Collapsible*/}
-            {/*      key={folder.id}*/}
-            {/*      defaultOpen*/}
-            {/*      className={"group/collapsible"}*/}
-            {/*      asChild*/}
-            {/*    >*/}
-            {/*      <SidebarMenuItem>*/}
-            {/*        <CollapsibleTrigger asChild>*/}
-            {/*          <SidebarMenuButton>*/}
-            {/*            <span>{folder.name}</span>*/}
-            {/*            <ChevronDown*/}
-            {/*              className={*/}
-            {/*                "ml-auto transition-transform duration-200 group-data-[state=open]/collapsible:rotate-90"*/}
-            {/*              }*/}
-            {/*            />*/}
-            {/*          </SidebarMenuButton>*/}
-            {/*        </CollapsibleTrigger>*/}
-            {/*        <CollapsibleContent>*/}
-            {/*          <SidebarMenuSub>*/}
-            {/*            {folder.documents.map((document) => (*/}
-            {/*              <DocumentButton*/}
-            {/*                key={document.id}*/}
-            {/*                item={document}*/}
-            {/*                folders={folderNames}*/}
-            {/*                submenu={true}*/}
-            {/*              />*/}
-            {/*            ))}*/}
-            {/*          </SidebarMenuSub>*/}
-            {/*        </CollapsibleContent>*/}
-            {/*      </SidebarMenuItem>*/}
-            {/*    </Collapsible>*/}
-            {/*  ))}*/}
+            {folders.map((folder) => (
+              <Collapsible
+                key={folder.id}
+                defaultOpen
+                className={"group/collapsible"}
+                asChild
+              >
+                <SidebarMenuItem>
+                  <CollapsibleTrigger asChild>
+                    <SidebarMenuButton>
+                      <span>{folder.name}</span>
+                      <ChevronDown
+                        className={
+                          "ml-auto transition-transform duration-200 group-data-[state=open]/collapsible:rotate-90"
+                        }
+                      />
+                    </SidebarMenuButton>
+                  </CollapsibleTrigger>
+                  <CollapsibleContent>
+                    <SidebarMenuSub>
+                      {folder.documents.map((document) => (
+                        <DocumentButton
+                          key={document.id}
+                          item={document}
+                          folders={folderNames}
+                          submenu={true}
+                        />
+                      ))}
+                    </SidebarMenuSub>
+                  </CollapsibleContent>
+                </SidebarMenuItem>
+              </Collapsible>
+            ))}
 
             {/* Render documents without a folder */}
             {orphans.length > 0 &&

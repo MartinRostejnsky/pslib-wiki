@@ -10,6 +10,7 @@ export type Document = {
 export type Folder = {
   id: string;
   name: string;
+  createdAt: Date;
 };
 
 export type FolderContains = {

@@ -7,7 +7,7 @@ import {
   FOLDERS_NAME,
   getDb,
 } from "@/lib/surrealdb";
-import { Document, FolderContains } from "@/lib/types";
+import { FolderContains } from "@/lib/types";
 import { RecordId } from "surrealdb";
 
 export async function UpdateDocumentName(id: string, name: string) {
