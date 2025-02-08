@@ -1,4 +1,10 @@
 services:
+  init-data:
+    image: busybox
+    command: chown -R 65532:65532 /data && chmod -R 755 /data
+    volumes:
+      - dbdata:/data
+
   surrealdb:
     env_file:
       - .env
@@ -9,11 +15,12 @@ services:
       - $DB_USER
       - --pass
       - $DB_PASSWORD
+      - rocksdb:/data/database.db
     image: surrealdb/surrealdb:v2.1
     ports:
       - 8000:8000
     volumes:
-      - dbdata:/mydata
+      - dbdata:/data
 
 volumes:
   dbdata:
