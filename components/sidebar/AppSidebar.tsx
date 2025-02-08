@@ -76,7 +76,7 @@ async function getFolders() {
   const folders = await db.select<Folder>("folders");
   return folders.map((folder) => {
     return {
-      id: folder.id.id.toString(),
+      id: folder.id.toString(),
       name: folder.name,
     };
   });

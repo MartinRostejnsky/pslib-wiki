@@ -1,14 +1,8 @@
 "use server";
 
 import { auth } from "@clerk/nextjs/server";
-import {
-  DOCUMENTS_NAME,
-  FOLDER_CONTAINS_NAME,
-  FOLDERS_NAME,
-  getDb,
-} from "@/lib/surrealdb";
+import { FOLDER_CONTAINS_NAME, getDb } from "@/lib/surrealdb";
 import { FolderContains } from "@/lib/types";
-import { RecordId } from "surrealdb";
 
 export async function UpdateDocumentName(id: string, name: string) {
   const { userId } = await auth();
@@ -18,9 +12,13 @@ export async function UpdateDocumentName(id: string, name: string) {
   }
 
   const db = await getDb();
-  await db.query(`UPDATE ${DOCUMENTS_NAME}:${id} SET name = $name`, {
-    name,
-  });
+  await db.query(
+    `UPDATE ${id}
+     SET name = $name`,
+    {
+      name,
+    },
+  );
 }
 
 export async function DeleteDocument(id: string) {
@@ -31,7 +29,7 @@ export async function DeleteDocument(id: string) {
   }
 
   const db = await getDb();
-  await db.delete(new RecordId(DOCUMENTS_NAME, id));
+  await db.query(`DELETE ${id}`);
 }
 
 export async function MoveDocument(id: string, folderId: string | null) {
@@ -41,11 +39,16 @@ export async function MoveDocument(id: string, folderId: string | null) {
     return { message: "You must be signed in" };
   }
 
-  if (!folderId) return;
-
   const db = await getDb();
-  await db.insertRelation<FolderContains>(FOLDER_CONTAINS_NAME, {
-    in: new RecordId(FOLDERS_NAME, folderId),
-    out: new RecordId(DOCUMENTS_NAME, id),
-  } as unknown as FolderContains);
+
+  const [folder_relation] = await db.query<[FolderContains[]]>(
+    `SELECT * FROM ${FOLDER_CONTAINS_NAME} WHERE out = ${id}`,
+  );
+  console.log(folder_relation);
+
+  if (folder_relation.length > 0)
+    await db.query(`DELETE ${folder_relation[0].id};`);
+
+  if (!folderId) return;
+  await db.query(`RELATE ${folderId} -> ${FOLDER_CONTAINS_NAME} -> ${id}`);
 }
