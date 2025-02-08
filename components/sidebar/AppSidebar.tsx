@@ -20,13 +20,7 @@ import {
   CollapsibleTrigger,
 } from "@/components/ui/collapsible";
 import { ChevronDown } from "lucide-react";
-import { isNull } from "drizzle-orm";
-import {
-  DOCUMENTS_NAME,
-  FOLDER_CONTAINS_NAME,
-  FOLDERS_NAME,
-  getDb,
-} from "@/lib/surrealdb";
+import { DOCUMENTS_NAME, FOLDER_CONTAINS_NAME, getDb } from "@/lib/surrealdb";
 import { Document, Folder } from "@/lib/types";
 
 interface FolderDocuments extends Folder {
@@ -58,14 +52,18 @@ async function getFolderContents() {
       });
     });
 
-  const orphans = await db.select<Document>("documents").then((documents) => {
-    return documents.map((document) => {
-      return {
-        id: document.id.id.toString(),
-        name: document.name,
-      };
+  const orphans = await db
+    .query<
+      [Document[]]
+    >(`SELECT * FROM ${DOCUMENTS_NAME} WHERE id NOT IN (SELECT VALUE out FROM ${FOLDER_CONTAINS_NAME})`)
+    .then(([documents]) => {
+      return documents.map((document) => {
+        return {
+          id: document.id.toString(),
+          name: document.name,
+        };
+      });
     });
-  });
 
   return {
     folders,
