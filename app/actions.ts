@@ -48,10 +48,7 @@ export async function saveDocument(id: string, content: string) {
     return { message: "You must be signed in" };
   }
 
-  // await db
-  //   .update(Documents)
-  //   .set({
-  //     content: content,
-  //   })
-  //   .where(eq(Documents.id, id));
+  const db = await getDb();
+  console.log(`UPDATE ${id} SET content = '${content}';`);
+  await db.query(`UPDATE ${id} SET content = '${content}';`);
 }

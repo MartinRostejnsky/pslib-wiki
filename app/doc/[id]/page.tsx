@@ -33,7 +33,7 @@ export default async function Page({
         />
       </SignedOut>
       <SignedIn>
-        <Editor content={row.content} id={id} />
+        <Editor content={row.content} id={`${DOCUMENTS_NAME}:${id}`} />
       </SignedIn>
     </div>
   );
