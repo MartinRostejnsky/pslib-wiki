@@ -22,7 +22,9 @@ async function getFolderContents() {
       .query<
         [FolderDocuments[]]
       >(`SELECT *, (SELECT * FROM ->folderContains->documents) AS documents FROM folders`)
-      .then(([folders]) => {
+      .then((rows) => {
+        if (!rows) return [];
+        const folders = rows[0];
         return folders.map((items) => {
           return {
             id: items.id.toString(),
@@ -46,7 +48,9 @@ async function getFolderContents() {
          FROM ${DOCUMENTS_NAME}
          WHERE id NOT IN (SELECT VALUE out FROM ${FOLDER_CONTAINS_NAME})`,
       )
-      .then(([documents]) => {
+      .then((rows) => {
+        if (!rows) return [];
+        const documents = rows[0];
         return documents.map((document) => {
           return {
             id: document.id.toString(),
@@ -68,8 +72,10 @@ async function getFolders() {
   const db = await connectionPool.acquire();
 
   try {
-    const folders = await db.query<[Folder[]]>(`SELECT * FROM ${FOLDERS_NAME}`);
-    return folders.map(([folder]) => {
+    const rows = await db.query<[Folder[]]>(`SELECT * FROM ${FOLDERS_NAME}`);
+    if (!rows) return [];
+    const folders = rows[0];
+    return folders.map((folder) => {
       return {
         id: folder.id.toString(),
         name: folder.name,
