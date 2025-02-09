@@ -11,6 +11,7 @@ const nextConfig: NextConfig = {
     return config;
   },
   serverExternalPackages: ["surrealdb"],
+  output: "standalone",
 };
 
 export default withSentryConfig(nextConfig, {

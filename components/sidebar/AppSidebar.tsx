@@ -20,7 +20,12 @@ import {
   CollapsibleTrigger,
 } from "@/components/ui/collapsible";
 import { ChevronDown } from "lucide-react";
-import { DOCUMENTS_NAME, FOLDER_CONTAINS_NAME, getDb } from "@/lib/surrealdb";
+import {
+  connectionPool,
+  DOCUMENTS_NAME,
+  FOLDER_CONTAINS_NAME,
+  FOLDERS_NAME,
+} from "@/lib/surrealdb";
 import { Document, Folder } from "@/lib/types";
 
 interface FolderDocuments extends Folder {
@@ -28,58 +33,69 @@ interface FolderDocuments extends Folder {
 }
 
 async function getFolderContents() {
-  const db = await getDb();
-  const folders = await db
-    .query<[FolderDocuments[]]>(
-      `SELECT *, (SELECT * FROM ->folderContains ->documents) AS documents
-       FROM folders`,
-    )
-    .then(([folders]) => {
-      return folders.map((items) => {
-        return {
-          id: items.id.toString(),
-          name: items.name,
-          documents: items.documents.map((document) => {
-            return {
-              id: document.id.toString(),
-              name: document.name,
-              content: document.content,
-              createdAt: document.createdAt,
-            };
-          }),
-          createdAt: items.createdAt,
-        };
+  const db = await connectionPool.acquire();
+  try {
+    // language=SQL format=false
+    const folders = await db
+      .query<
+        [FolderDocuments[]]
+      >(`SELECT *, (SELECT * FROM ->folderContains->documents) AS documents FROM folders`)
+      .then(([folders]) => {
+        return folders.map((items) => {
+          return {
+            id: items.id.toString(),
+            name: items.name,
+            documents: items.documents.map((document) => {
+              return {
+                id: document.id.toString(),
+                name: document.name,
+                content: document.content,
+                createdAt: document.createdAt,
+              };
+            }),
+            createdAt: items.createdAt,
+          };
+        });
       });
-    });
 
-  const orphans = await db
-    .query<
-      [Document[]]
-    >(`SELECT * FROM ${DOCUMENTS_NAME} WHERE id NOT IN (SELECT VALUE out FROM ${FOLDER_CONTAINS_NAME})`)
-    .then(([documents]) => {
-      return documents.map((document) => {
-        return {
-          id: document.id.toString(),
-          name: document.name,
-        };
+    const orphans = await db
+      .query<[Document[]]>(
+        `SELECT *
+         FROM ${DOCUMENTS_NAME}
+         WHERE id NOT IN (SELECT VALUE out FROM ${FOLDER_CONTAINS_NAME})`,
+      )
+      .then(([documents]) => {
+        return documents.map((document) => {
+          return {
+            id: document.id.toString(),
+            name: document.name,
+          };
+        });
       });
-    });
 
-  return {
-    folders,
-    orphans,
-  };
+    return {
+      folders,
+      orphans,
+    };
+  } finally {
+    connectionPool.release(db);
+  }
 }
 
 async function getFolders() {
-  const db = await getDb();
-  const folders = await db.select<Folder>("folders");
-  return folders.map((folder) => {
-    return {
-      id: folder.id.toString(),
-      name: folder.name,
-    };
-  });
+  const db = await connectionPool.acquire();
+
+  try {
+    const folders = await db.query<Folder[]>(`SELECT * FROM ${FOLDERS_NAME}`);
+    return folders.map((folder) => {
+      return {
+        id: folder.id,
+        name: folder.name,
+      };
+    });
+  } finally {
+    connectionPool.release(db);
+  }
 }
 
 export default async function AppSidebar() {
@@ -167,3 +183,5 @@ export default async function AppSidebar() {
     </Sidebar>
   );
 }
+
+export const dynamic = "force-dynamic";

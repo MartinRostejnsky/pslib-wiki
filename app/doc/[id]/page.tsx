@@ -1,13 +1,16 @@
 import Editor from "@/components/Editor";
 import { SignedIn, SignedOut } from "@clerk/nextjs";
-import { DOCUMENTS_NAME, getDb } from "@/lib/surrealdb";
+import { connectionPool, DOCUMENTS_NAME } from "@/lib/surrealdb";
 import { Document } from "@/lib/types";
-import { RecordId } from "surrealdb";
 import { redirect } from "next/navigation";
 
 async function getDocument(id: string) {
-  const db = await getDb();
-  return db.select<Document>(new RecordId(DOCUMENTS_NAME, id));
+  const db = await connectionPool.acquire();
+  try {
+    return await db.query<Document[]>(`SELECT * FROM ${DOCUMENTS_NAME}:${id};`);
+  } finally {
+    connectionPool.release(db);
+  }
 }
 
 export default async function Page({
@@ -17,7 +20,7 @@ export default async function Page({
 }) {
   const id = (await params).id;
 
-  const row = await getDocument(id);
+  const [row] = await getDocument(id);
   if (!row) {
     redirect("/");
   }
@@ -38,3 +41,5 @@ export default async function Page({
     </div>
   );
 }
+
+export const dynamic = "force-dynamic";
