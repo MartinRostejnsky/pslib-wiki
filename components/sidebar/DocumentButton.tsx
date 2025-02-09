@@ -26,7 +26,7 @@ export default function DocumentButton({
 
   if (submenu) {
     return (
-      <SidebarMenuSubItem key={linkId}>
+      <SidebarMenuSubItem className={"relative"}>
         <SidebarMenuSubButton
           asChild
           isActive={pathname.split("/").pop() === linkId}
@@ -34,14 +34,14 @@ export default function DocumentButton({
           <Link href={`/doc/${linkId}`}>{item.name}</Link>
         </SidebarMenuSubButton>
         <SignedIn>
-          <DocumentActionButton item={item} folders={folders} />
+          <DocumentActionButton item={item} folders={folders} key={item.id} />
         </SignedIn>
       </SidebarMenuSubItem>
     );
   }
 
   return (
-    <SidebarMenuItem key={linkId}>
+    <SidebarMenuItem>
       <SidebarMenuButton
         asChild
         isActive={pathname.split("/").pop() === linkId}
@@ -49,7 +49,7 @@ export default function DocumentButton({
         <Link href={`/doc/${linkId}`}>{item.name}</Link>
       </SidebarMenuButton>
       <SignedIn>
-        <DocumentActionButton item={item} folders={folders} />
+        <DocumentActionButton item={item} folders={folders} key={item.id} />
       </SignedIn>
     </SidebarMenuItem>
   );

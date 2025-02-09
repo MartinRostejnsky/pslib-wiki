@@ -59,7 +59,7 @@ export default function DocumentActionButton({
       <AlertDialog>
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
-            <SidebarMenuAction className={"right-3"}>
+            <SidebarMenuAction className={"right-3 top-1"}>
               <MoreHorizontal />
             </SidebarMenuAction>
           </DropdownMenuTrigger>
@@ -90,6 +90,7 @@ export default function DocumentActionButton({
                     </DropdownMenuItem>
                   ))}
                   <DropdownMenuItem
+                    key={"unassign"}
                     onClick={async () => {
                       await MoveDocument(item.id, null);
                       router.refresh();
