@@ -7,6 +7,7 @@ import {
 } from "@/components/ui/sidebar";
 import Footer from "@/components/sidebar/Footer";
 import DocumentsMenu from "@/components/sidebar/DocumentsMenu";
+import { Suspense } from "react";
 
 export default function AppSidebar() {
   return (
@@ -14,7 +15,9 @@ export default function AppSidebar() {
       <SidebarHeader></SidebarHeader>
       <SidebarContent>
         <SidebarGroup>
-          <DocumentsMenu />
+          <Suspense fallback={<span>Loading...</span>}>
+            <DocumentsMenu />
+          </Suspense>
         </SidebarGroup>
       </SidebarContent>
       <SidebarFooter>

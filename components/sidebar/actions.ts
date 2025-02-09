@@ -3,6 +3,7 @@
 import { auth } from "@clerk/nextjs/server";
 import { connectionPool, FOLDER_CONTAINS_NAME } from "@/lib/surrealdb";
 import { FolderContains } from "@/lib/types";
+import { revalidateTag } from "next/cache";
 
 export async function UpdateDocumentName(id: string, name: string) {
   const { userId } = await auth();
@@ -17,6 +18,7 @@ export async function UpdateDocumentName(id: string, name: string) {
       `UPDATE ${id}
        SET name = "${name}"`,
     );
+    revalidateTag("documents");
   } finally {
     connectionPool.release(db);
   }
@@ -32,6 +34,7 @@ export async function DeleteDocument(id: string) {
   const db = await connectionPool.acquire();
   try {
     await db.query(`DELETE ${id}`);
+    revalidateTag("documents");
     return true;
   } finally {
     connectionPool.release(db);
@@ -56,9 +59,13 @@ export async function MoveDocument(id: string, folderId: string | null) {
     if (folder_relation.length > 0)
       await db.query(`DELETE ${folder_relation[0].id};`);
 
-    if (!folderId) return;
+    if (!folderId) {
+      revalidateTag("documents");
+      return;
+    }
     // language=SQL format=false
     await db.query(`RELATE ${folderId}->${FOLDER_CONTAINS_NAME}->${id}`);
+    revalidateTag("documents");
   } finally {
     connectionPool.release(db);
   }

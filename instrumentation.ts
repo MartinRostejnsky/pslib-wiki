@@ -1,15 +1,6 @@
-import * as Sentry from "@sentry/nextjs";
 import { connectionPool, DOCUMENTS_NAME, FOLDERS_NAME } from "@/lib/surrealdb";
 
 export async function register() {
-  if (process.env.NEXT_RUNTIME === "nodejs") {
-    await import("./sentry.server.config");
-  }
-
-  if (process.env.NEXT_RUNTIME === "edge") {
-    await import("./sentry.edge.config");
-  }
-
   await connectionPool.initialize();
   const db = await connectionPool.acquire();
   try {
@@ -28,5 +19,3 @@ export async function register() {
     connectionPool.release(db);
   }
 }
-
-export const onRequestError = Sentry.captureRequestError;

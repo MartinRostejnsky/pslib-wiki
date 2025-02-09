@@ -1,4 +1,5 @@
 import Surreal from "surrealdb";
+import { connection } from "next/server";
 
 if (typeof globalThis.WebSocket === "undefined") {
   globalThis.WebSocket = WebSocket;
@@ -33,6 +34,7 @@ class ConnectionPool {
   }
 
   private async performMaintenance() {
+    await connection();
     const now = Date.now();
     const connectionsToRemove: PooledConnection[] = [];
 

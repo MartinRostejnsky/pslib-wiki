@@ -2,17 +2,18 @@ import { SignedIn, SignedOut, SignInButton, UserButton } from "@clerk/nextjs";
 import { Button } from "@/components/ui/button";
 import NewDocumentButton from "@/components/sidebar/NewDocumentButton";
 import NewFolderButton from "@/components/sidebar/NewFolderButton";
+import { Suspense } from "react";
 
 export default function Footer() {
   return (
-    <div>
-      <SignedOut>
-        <SignInButton>
-          <Button className={"text-base"}>Sign in</Button>
-        </SignInButton>
-      </SignedOut>
-      <SignedIn>
-        <div className={"flex flex-col gap-1"}>
+    <div className={"flex flex-col gap-1"}>
+      <Suspense fallback={<span>Loading...</span>}>
+        <SignedOut>
+          <SignInButton>
+            <Button className={"text-base"}>Sign in</Button>
+          </SignInButton>
+        </SignedOut>
+        <SignedIn>
           <NewDocumentButton />
           <NewFolderButton />
           <UserButton
@@ -27,8 +28,8 @@ export default function Footer() {
               },
             }}
           />
-        </div>
-      </SignedIn>
+        </SignedIn>
+      </Suspense>
     </div>
   );
 }

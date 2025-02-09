@@ -8,6 +8,7 @@ import {
 } from "@/lib/surrealdb";
 import { Document, type Folder } from "@/lib/types";
 import { default as FolderMenu } from "./Folder";
+import { cacheTag } from "next/dist/server/use-cache/cache-tag";
 
 export interface FolderDocuments extends Folder {
   documents: Document[];
@@ -80,6 +81,8 @@ async function getFolders() {
 }
 
 export default async function DocumentsMenu() {
+  "use cache";
+  cacheTag("documents");
   const { folders, orphans } = await getFolderContents();
   const folderNames = await getFolders();
 

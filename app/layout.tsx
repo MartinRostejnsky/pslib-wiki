@@ -8,7 +8,6 @@ import {
   SidebarTrigger,
 } from "@/components/ui/sidebar";
 import { dark } from "@clerk/themes";
-import { SpeedInsights } from "@vercel/speed-insights/next";
 import AppSidebar from "@/components/sidebar/AppSidebar";
 
 const geistSans = Geist({
@@ -50,7 +49,6 @@ export default function RootLayout({
               {children}
             </SidebarInset>
           </SidebarProvider>
-          <SpeedInsights />
         </body>
       </html>
     </ClerkProvider>

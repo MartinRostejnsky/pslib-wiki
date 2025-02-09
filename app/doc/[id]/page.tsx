@@ -3,11 +3,15 @@ import { SignedIn, SignedOut } from "@clerk/nextjs";
 import { connectionPool, DOCUMENTS_NAME } from "@/lib/surrealdb";
 import { Document } from "@/lib/types";
 import { redirect } from "next/navigation";
+import { connection } from "next/server";
 
 async function getDocument(id: string) {
+  await connection();
   const db = await connectionPool.acquire();
   try {
-    return await db.query<Document[]>(`SELECT * FROM ${DOCUMENTS_NAME}:${id};`);
+    return await db.query<[Document[]]>(
+      `SELECT * FROM ${DOCUMENTS_NAME}:${id};`,
+    );
   } finally {
     connectionPool.release(db);
   }
@@ -32,14 +36,12 @@ export default async function Page({
           className={
             "prose prose-base prose-invert mx-8 my-4 prose-headings:mb-4 prose-p:mb-2 prose-p:mt-0"
           }
-          dangerouslySetInnerHTML={{ __html: row.content }}
+          dangerouslySetInnerHTML={{ __html: row[0].content }}
         />
       </SignedOut>
       <SignedIn>
-        <Editor content={row.content} id={`${DOCUMENTS_NAME}:${id}`} />
+        <Editor content={row[0].content} id={`${DOCUMENTS_NAME}:${id}`} />
       </SignedIn>
     </div>
   );
 }
-
-export const dynamic = "force-dynamic";
