@@ -11,6 +11,32 @@ interface PooledConnection {
   lastUsed: number;
 }
 
+class MockSurreal {
+  async connect(url: string) {
+    console.log("MockSurreal: Pretending to connect to", url);
+  }
+
+  get ready(): Promise<boolean> {
+    return Promise.resolve(true);
+  }
+
+  async signin(credentials: { username: string; password: string }) {
+    console.log("MockSurreal: Pretending to sign in", credentials);
+  }
+
+  async use(options: { namespace: string; database: string }) {
+    console.log("MockSurreal: Pretending to use", options);
+  }
+
+  async query(query: string, params: string[]) {
+    console.log("MockSurreal: Querying a database: ", query, params);
+  }
+
+  async close() {
+    console.log("MockSurreal: Pretending to close connection");
+  }
+}
+
 class ConnectionPool {
   private pool: PooledConnection[] = [];
   private maxSize: number;
@@ -62,11 +88,13 @@ class ConnectionPool {
   }
 
   private async createConnection(): Promise<Surreal> {
-    const db = new Surreal();
-
+    // if DB_URL is undefined, create a mock connection instead of throwing an error
     if (!process.env.DB_URL) {
-      throw new Error("No DB_URL set in environment");
+      console.warn("No DB_URL set in environment; using a mock connection.");
+      return this.createMockConnection();
     }
+
+    const db = new Surreal();
 
     await db.connect(process.env.DB_URL);
     await db.ready;
@@ -84,6 +112,26 @@ class ConnectionPool {
     });
 
     return db;
+  }
+
+  private async createMockConnection(): Promise<Surreal> {
+    const mockDb = new MockSurreal();
+    await mockDb.connect("mock://url");
+
+    if (process.env.DB_USER && process.env.DB_PASSWORD) {
+      await mockDb.signin({
+        username: process.env.DB_USER,
+        password: process.env.DB_PASSWORD,
+      });
+    }
+
+    await mockDb.use({
+      namespace: process.env.DB_NAMESPACE || "default_namespace",
+      database: process.env.DB_DATABASE || "default_database",
+    });
+
+    // Cast the mock as Surreal for compatibility with the rest of the pool.
+    return mockDb as unknown as Surreal;
   }
 
   public async initialize() {
