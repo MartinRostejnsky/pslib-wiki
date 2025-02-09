@@ -1,31 +1,40 @@
 import Editor from "@/components/Editor";
-import {db} from "@/db/drizzle";
-import {Documents} from "@/db/schema";
-import {eq} from "drizzle-orm";
-import {redirect} from "next/navigation";
-import {SignedIn, SignedOut} from "@clerk/nextjs";
+import { SignedIn, SignedOut } from "@clerk/nextjs";
+import { DOCUMENTS_NAME, getDb } from "@/lib/surrealdb";
+import { Document } from "@/lib/types";
+import { RecordId } from "surrealdb";
+import { redirect } from "next/navigation";
 
-function getDocument(id: string) {
-    return db.select().from(Documents).where(eq(Documents.id, id)).limit(1).execute()
+async function getDocument(id: string) {
+  const db = await getDb();
+  return db.select<Document>(new RecordId(DOCUMENTS_NAME, id));
 }
 
-export default async function Page({params}: { params: Promise<{ id: string }> }) {
-    const id = (await params).id;
+export default async function Page({
+  params,
+}: {
+  params: Promise<{ id: string }>;
+}) {
+  const id = (await params).id;
 
-    const rows = await getDocument(id);
-    if (rows.length !== 1) {
-        redirect("/");
-    }
-    const document = rows[0];
+  const row = await getDocument(id);
+  if (!row) {
+    redirect("/");
+  }
 
-    return (
-        <div className={"flex justify-center"}>
-            <SignedOut>
-                <div className={"my-4 mx-8 prose prose-invert prose-base prose-p:mt-0 prose-headings:mb-4 prose-p:mb-2"} dangerouslySetInnerHTML={{__html: document.content}} />
-            </SignedOut>
-            <SignedIn>
-                <Editor content={document.content} id={id}/>
-            </SignedIn>
-        </div>
-    );
+  return (
+    <div className={"flex justify-center"}>
+      <SignedOut>
+        <div
+          className={
+            "prose prose-base prose-invert mx-8 my-4 prose-headings:mb-4 prose-p:mb-2 prose-p:mt-0"
+          }
+          dangerouslySetInnerHTML={{ __html: row.content }}
+        />
+      </SignedOut>
+      <SignedIn>
+        <Editor content={row.content} id={`${DOCUMENTS_NAME}:${id}`} />
+      </SignedIn>
+    </div>
+  );
 }

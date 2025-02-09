@@ -1,16 +1,26 @@
 services:
-  psql:
-    image: postgres:17.2
-    restart: always
-    shm_size: 128mb
-    ports:
-      - "5432:5432"
+  init-data:
+    image: busybox
+    command: chown -R 65532:65532 /data && chmod -R 755 /data
     volumes:
-      - dbdata:/var/lib/postgresql/data
-    environment:
-      POSTGRES_USER: "wiki"
-      POSTGRES_PASSWORD: "wiki"
-      POSTGRES_DB: "wiki"
+      - dbdata:/data
+
+  surrealdb:
+    env_file:
+      - .env
+    entrypoint:
+      - /surreal
+      - start
+      - --user
+      - $DB_USER
+      - --pass
+      - $DB_PASSWORD
+      - rocksdb:/data/database.db
+    image: surrealdb/surrealdb:v2.1
+    ports:
+      - 8000:8000
+    volumes:
+      - dbdata:/data
 
 volumes:
   dbdata:

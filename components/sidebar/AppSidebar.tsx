@@ -20,22 +20,50 @@ import {
   CollapsibleTrigger,
 } from "@/components/ui/collapsible";
 import { ChevronDown } from "lucide-react";
-import { db } from "@/db/drizzle";
-import { Documents, Folders } from "@/db/schema";
-import { isNull } from "drizzle-orm";
+import { DOCUMENTS_NAME, FOLDER_CONTAINS_NAME, getDb } from "@/lib/surrealdb";
+import { Document, Folder } from "@/lib/types";
+
+interface FolderDocuments extends Folder {
+  documents: Document[];
+}
 
 async function getFolderContents() {
-  const folders = await db.query.Folders.findMany({
-    with: {
-      documents: true,
-    },
-    orderBy: (folders) => folders.id,
-  });
+  const db = await getDb();
+  const folders = await db
+    .query<[FolderDocuments[]]>(
+      `SELECT *, (SELECT * FROM ->folderContains ->documents) AS documents
+       FROM folders`,
+    )
+    .then(([folders]) => {
+      return folders.map((items) => {
+        return {
+          id: items.id.toString(),
+          name: items.name,
+          documents: items.documents.map((document) => {
+            return {
+              id: document.id.toString(),
+              name: document.name,
+              content: document.content,
+              createdAt: document.createdAt,
+            };
+          }),
+          createdAt: items.createdAt,
+        };
+      });
+    });
 
   const orphans = await db
-    .select()
-    .from(Documents)
-    .where(isNull(Documents.folderId));
+    .query<
+      [Document[]]
+    >(`SELECT * FROM ${DOCUMENTS_NAME} WHERE id NOT IN (SELECT VALUE out FROM ${FOLDER_CONTAINS_NAME})`)
+    .then(([documents]) => {
+      return documents.map((document) => {
+        return {
+          id: document.id.toString(),
+          name: document.name,
+        };
+      });
+    });
 
   return {
     folders,
@@ -44,7 +72,14 @@ async function getFolderContents() {
 }
 
 async function getFolders() {
-  return db.select().from(Folders);
+  const db = await getDb();
+  const folders = await db.select<Folder>("folders");
+  return folders.map((folder) => {
+    return {
+      id: folder.id.toString(),
+      name: folder.name,
+    };
+  });
 }
 
 export default async function AppSidebar() {
