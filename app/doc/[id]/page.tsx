@@ -53,7 +53,7 @@ async function Content({ document }: { document: Promise<Document> }) {
         />
       </SignedOut>
       <SignedIn>
-        <Editor content={row.content} id={row.id} />
+        <Editor content={row.content} id={row.id.toString()} />
       </SignedIn>
     </div>
   );
