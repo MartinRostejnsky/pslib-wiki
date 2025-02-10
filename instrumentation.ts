@@ -1,4 +1,10 @@
-import { connectionPool, DOCUMENTS_NAME, FOLDERS_NAME } from "@/lib/surrealdb";
+import {
+  COLLECTIONS_NAME,
+  connectionPool,
+  CONTAINS_NAME,
+  DOCUMENTS_NAME,
+  FOLDERS_NAME,
+} from "@/lib/surrealdb";
 
 export async function register() {
   await connectionPool.initialize();
@@ -13,6 +19,10 @@ export async function register() {
     DEFINE FIELD IF NOT EXISTS name ON TABLE ${DOCUMENTS_NAME} TYPE string;
     DEFINE FIELD IF NOT EXISTS content ON TABLE ${DOCUMENTS_NAME} TYPE string;
     DEFINE FIELD IF NOT EXISTS createdAt ON TABLE ${DOCUMENTS_NAME} TYPE datetime DEFAULT time::now() READONLY;
+    
+    DEFINE TABLE IF NOT EXISTS ${COLLECTIONS_NAME} SCHEMAFULL;
+    DEFINE FIELD IF NOT EXISTS name ON TABLE ${COLLECTIONS_NAME} TYPE string;
+    DEFINE FIELD IF NOT EXISTS createdAt ON TABLE ${COLLECTIONS_NAME} TYPE datetime DEFAULT time::now() READONLY;
   `;
     await db.query(migrationQueries);
   } finally {
