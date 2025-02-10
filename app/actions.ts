@@ -14,14 +14,17 @@ export async function createDocument(name: string) {
 
   const db = await connectionPool.acquire();
   try {
-    const [result] = await db.query<Document[]>(`
+    const [result] = await db.query<[Document[]]>(
+      `
     CREATE ${DOCUMENTS_NAME} CONTENT {
-      name: ${name},
+      name: $name,
       content: "<p></p>"
     };
-    `);
+    `,
+      { name: name },
+    );
     revalidateTag("documents");
-    return result.id.toString();
+    return result[0].id.toString();
   } finally {
     connectionPool.release(db);
   }
@@ -36,11 +39,12 @@ export async function createFolder(name: string) {
 
   const db = await connectionPool.acquire();
   try {
-    const [result] = await db.query<Folder[]>(
-      `CREATE ${FOLDERS_NAME} SET name = ${name}`,
+    const [result] = await db.query<[Folder[]]>(
+      `CREATE ${FOLDERS_NAME} SET name = $name`,
+      { name: name },
     );
     revalidateTag("documents");
-    return result.id.toString();
+    return result[0].id.toString();
   } finally {
     connectionPool.release(db);
   }

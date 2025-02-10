@@ -5,7 +5,6 @@ import { Document } from "@/lib/types";
 import { redirect } from "next/navigation";
 import { connection } from "next/server";
 import { Suspense } from "react";
-import posthog from "posthog-js";
 
 async function getDocument(id: string) {
   await connection();
@@ -28,7 +27,7 @@ export default async function Page({
   const row = params.then(async ({ id }) => {
     const [row] = await getDocument(id);
     if (!row) {
-      redirect("/");
+      return undefined;
     }
     return row[0];
   });
@@ -40,8 +39,16 @@ export default async function Page({
   );
 }
 
-async function Content({ document }: { document: Promise<Document> }) {
+async function Content({
+  document,
+}: {
+  document: Promise<Document | undefined>;
+}) {
   const row = await document;
+  if (!row) {
+    redirect("/");
+    return;
+  }
 
   return (
     <div className={"flex justify-center"}>
