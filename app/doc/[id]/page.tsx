@@ -5,6 +5,7 @@ import { Document } from "@/lib/types";
 import { redirect } from "next/navigation";
 import { connection } from "next/server";
 import { Suspense } from "react";
+import posthog from "posthog-js";
 
 async function getDocument(id: string) {
   await connection();

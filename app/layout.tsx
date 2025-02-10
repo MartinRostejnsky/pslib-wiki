@@ -10,6 +10,7 @@ import {
 import { dark } from "@clerk/themes";
 import AppSidebar from "@/components/sidebar/AppSidebar";
 import { Suspense } from "react";
+import { CSPostHogProvider } from "@/app/providers";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -40,19 +41,21 @@ export default function RootLayout({
         }}
       >
         <html lang="en">
-          <body
-            className={`${geistSans.variable} ${geistMono.variable} dark bg-background antialiased`}
-          >
-            <SidebarProvider>
-              <AppSidebar />
-              <SidebarInset>
-                <SidebarTrigger
-                  className={"ml-4 mt-2 md:absolute md:left-4 md:top-4"}
-                />
-                {children}
-              </SidebarInset>
-            </SidebarProvider>
-          </body>
+          <CSPostHogProvider>
+            <body
+              className={`${geistSans.variable} ${geistMono.variable} dark bg-background antialiased`}
+            >
+              <SidebarProvider>
+                <AppSidebar />
+                <SidebarInset>
+                  <SidebarTrigger
+                    className={"ml-4 mt-2 md:absolute md:left-4 md:top-4"}
+                  />
+                  {children}
+                </SidebarInset>
+              </SidebarProvider>
+            </body>
+          </CSPostHogProvider>
         </html>
       </ClerkProvider>
     </Suspense>
