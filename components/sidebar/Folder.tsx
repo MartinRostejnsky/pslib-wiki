@@ -23,11 +23,11 @@ export default async function Folder({
     <Collapsible className={"group/collapsible"} asChild>
       <SidebarMenuItem>
         <CollapsibleTrigger asChild>
-          <SidebarMenuButton>
+          <SidebarMenuButton tooltip={folder.name}>
             <span>{folder.name}</span>
             <ChevronDown
               className={
-                "ml-auto transition-transform duration-200 group-data-[state=open]/collapsible:rotate-90"
+                "ml-auto -rotate-90 transition-transform duration-200 group-data-[state=open]/collapsible:rotate-0"
               }
             />
           </SidebarMenuButton>
