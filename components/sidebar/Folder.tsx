@@ -1,3 +1,5 @@
+"use client";
+
 import {
   Collapsible,
   CollapsibleContent,
@@ -11,16 +13,29 @@ import {
 import { ChevronDown } from "lucide-react";
 import DocumentButton from "@/components/sidebar/DocumentButton";
 import { FolderDocuments } from "@/components/sidebar/DocumentsMenu";
+import { usePathname } from "next/navigation";
 
-export default async function Folder({
+export default function Folder({
   folder,
   folderNames,
 }: {
   folder: FolderDocuments;
   folderNames: { id: string; name: string }[];
 }) {
+  const pathname = usePathname();
+
+  const linkIds: Set<string> = new Set();
+
+  folder.documents.map((document) => {
+    linkIds.add(document.id.toString().split(":").pop() ?? "");
+  });
+
   return (
-    <Collapsible className={"group/collapsible"} asChild>
+    <Collapsible
+      className={"group/collapsible"}
+      defaultOpen={linkIds.has(pathname.split("/").pop() ?? "")}
+      asChild
+    >
       <SidebarMenuItem>
         <CollapsibleTrigger asChild>
           <SidebarMenuButton tooltip={folder.name}>
