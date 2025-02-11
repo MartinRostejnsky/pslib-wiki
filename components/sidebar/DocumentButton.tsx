@@ -5,6 +5,7 @@ import {
   SidebarMenuItem,
   SidebarMenuSubButton,
   SidebarMenuSubItem,
+  useSidebar,
 } from "@/components/ui/sidebar";
 import Link from "next/link";
 import { SignedIn } from "@clerk/nextjs";
@@ -21,6 +22,7 @@ export default function DocumentButton({
   submenu: boolean;
 }) {
   const pathname = usePathname();
+  const { setOpenMobile } = useSidebar();
 
   const linkId = item.id.split(":")[1];
 
@@ -31,7 +33,9 @@ export default function DocumentButton({
           asChild
           isActive={pathname.split("/").pop() === linkId}
         >
-          <Link href={`/doc/${linkId}`}>{item.name}</Link>
+          <Link href={`/doc/${linkId}`} onClick={() => setOpenMobile(false)}>
+            {item.name}
+          </Link>
         </SidebarMenuSubButton>
         <SignedIn>
           <DocumentActionButton item={item} folders={folders} key={item.id} />
@@ -46,7 +50,9 @@ export default function DocumentButton({
         asChild
         isActive={pathname.split("/").pop() === linkId}
       >
-        <Link href={`/doc/${linkId}`}>{item.name}</Link>
+        <Link href={`/doc/${linkId}`} onClick={() => setOpenMobile(false)}>
+          {item.name}
+        </Link>
       </SidebarMenuButton>
       <SignedIn>
         <DocumentActionButton item={item} folders={folders} key={item.id} />
