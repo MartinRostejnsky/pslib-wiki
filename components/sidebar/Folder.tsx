@@ -10,7 +10,7 @@ import {
 } from "@/components/ui/sidebar";
 import { ChevronDown } from "lucide-react";
 import DocumentButton from "@/components/sidebar/DocumentButton";
-import { FolderDocuments } from "@/components/sidebar/DocumentsMenu";
+import { FolderDocuments } from "@/components/sidebar/OldDocumentsMenu";
 
 export default function Folder({
   folder,

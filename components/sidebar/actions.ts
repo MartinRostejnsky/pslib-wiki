@@ -152,3 +152,11 @@ export async function MoveToCollection(
     connectionPool.release(db);
   }
 }
+
+export async function GetContent(collectionId: string) {
+  const db = await connectionPool.acquire();
+  try {
+  } finally {
+    connectionPool.release(db);
+  }
+}
