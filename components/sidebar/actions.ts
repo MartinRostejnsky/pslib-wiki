@@ -75,7 +75,23 @@ export async function MoveDocument(id: string, folderId: string | null) {
   }
 }
 
-export async function getCollections() {
+export async function NewCollection(name: string) {
+  const db = await connectionPool.acquire();
+  try {
+    return await db
+      .query<[Collection[]]>(`CREATE ${COLLECTIONS_NAME} SET name = $name`, {
+        name: name,
+      })
+      .then((result) => {
+        if (!result) return "";
+        return result[0][0].id.toString();
+      });
+  } finally {
+    connectionPool.release(db);
+  }
+}
+
+export async function GetCollections() {
   const db = await connectionPool.acquire();
   try {
     return await db
