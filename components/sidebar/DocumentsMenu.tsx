@@ -6,13 +6,9 @@ import {
   FOLDER_CONTAINS_NAME,
   FOLDERS_NAME,
 } from "@/lib/surrealdb";
-import { Document, type Folder } from "@/lib/types";
+import { Document, type Folder, FolderDocuments } from "@/lib/types";
 import { default as FolderMenu } from "./Folder";
 import { cacheTag } from "next/dist/server/use-cache/cache-tag";
-
-export interface FolderDocuments extends Folder {
-  documents: Document[];
-}
 
 async function getFolderContents() {
   const db = await connectionPool.acquire();

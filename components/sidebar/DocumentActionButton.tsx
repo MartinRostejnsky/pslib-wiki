@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
+import { useAtomValue } from "jotai";
 import {
   Dialog,
   DialogClose,
@@ -41,8 +42,10 @@ import { Button } from "@/components/ui/button";
 import {
   DeleteDocument,
   MoveDocument,
+  MoveToCollection,
   UpdateDocumentName,
 } from "@/components/sidebar/actions";
+import { collectionsAtom } from "@/atoms";
 
 export default function DocumentActionButton({
   item,
@@ -53,13 +56,14 @@ export default function DocumentActionButton({
 }) {
   const [name, setName] = useState("");
   const router = useRouter();
+  const collections = useAtomValue(collectionsAtom);
 
   return (
     <Dialog>
       <AlertDialog>
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
-            <SidebarMenuAction className={"right-3 top-1"}>
+            <SidebarMenuAction className="right-3 top-1">
               <MoreHorizontal />
             </SidebarMenuAction>
           </DropdownMenuTrigger>
@@ -75,7 +79,7 @@ export default function DocumentActionButton({
               </DropdownMenuItem>
             </AlertDialogTrigger>
             <DropdownMenuSub>
-              <DropdownMenuSubTrigger>Move to</DropdownMenuSubTrigger>
+              <DropdownMenuSubTrigger>Move to Folder</DropdownMenuSubTrigger>
               <DropdownMenuPortal>
                 <DropdownMenuSubContent>
                   {folders.map((folder) => (
@@ -90,10 +94,37 @@ export default function DocumentActionButton({
                     </DropdownMenuItem>
                   ))}
                   <DropdownMenuItem
-                    key={"unassign"}
+                    key="unassign-folder"
                     onClick={async () => {
                       await MoveDocument(item.id, null);
                       router.refresh();
+                    }}
+                  >
+                    Unassign
+                  </DropdownMenuItem>
+                </DropdownMenuSubContent>
+              </DropdownMenuPortal>
+            </DropdownMenuSub>
+            <DropdownMenuSub>
+              <DropdownMenuSubTrigger>
+                Move to Collection
+              </DropdownMenuSubTrigger>
+              <DropdownMenuPortal>
+                <DropdownMenuSubContent>
+                  {collections.map((collection) => (
+                    <DropdownMenuItem
+                      key={collection.id}
+                      onClick={() => {
+                        MoveToCollection(item.id, collection.id);
+                      }}
+                    >
+                      {collection.name}
+                    </DropdownMenuItem>
+                  ))}
+                  <DropdownMenuItem
+                    key="unassign-collection"
+                    onClick={() => {
+                      MoveToCollection(item.id, null);
                     }}
                   >
                     Unassign

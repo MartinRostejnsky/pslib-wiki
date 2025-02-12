@@ -205,3 +205,4 @@ export const DOCUMENTS_NAME = "documents";
 export const FOLDERS_NAME = "folders";
 export const FOLDER_CONTAINS_NAME = "folderContains";
 export const COLLECTIONS_NAME = "collections";
+export const CONTAINS_NAME = "contains";

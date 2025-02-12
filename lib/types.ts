@@ -30,3 +30,13 @@ export type Contains = {
   in: RecordId<"collections">;
   out: RecordId<"folders" | "documents">;
 };
+
+export interface FolderDocuments extends Folder {
+  documents: Document[];
+}
+
+export type CollectionContent = {
+  id: string;
+  folders: FolderDocuments[];
+  orphans: Document[];
+};
