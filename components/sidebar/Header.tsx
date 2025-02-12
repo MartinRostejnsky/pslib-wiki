@@ -39,7 +39,6 @@ export default function Header() {
   const currentCollectionName =
     collections.find((el) => el.id.toString() === currentCollection)?.name ??
     "Select collection";
-  const router = useRouter();
   const [newCollName, setNewCollName] = useState("");
   const setCurrentCollection = useSetAtom(selectedCollectionAtom);
 
@@ -94,9 +93,10 @@ export default function Header() {
                 <Button
                   type="submit"
                   onClick={async () => {
-                    const id = await NewCollection(newCollName);
-                    setCurrentCollection(id);
-                    router.refresh();
+                    const collection = await NewCollection(newCollName);
+                    if (!collection) return;
+                    setCollections((coll) => [...coll, collection]);
+                    setCurrentCollection(collection.id);
                   }}
                 >
                   Create

@@ -83,8 +83,13 @@ export async function NewCollection(name: string) {
         name: name,
       })
       .then((result) => {
-        if (!result) return "";
-        return result[0][0].id.toString();
+        if (!result) return undefined;
+        const collection = result[0][0];
+        return {
+          id: collection.id.toString(),
+          name: collection.name,
+          createdAt: collection.createdAt,
+        };
       });
   } finally {
     connectionPool.release(db);
