@@ -12,7 +12,7 @@ import { ChevronDown } from "lucide-react";
 import DocumentButton from "@/components/sidebar/DocumentButton";
 import { FolderDocuments } from "@/components/sidebar/DocumentsMenu";
 
-export default async function Folder({
+export default function Folder({
   folder,
   folderNames,
 }: {

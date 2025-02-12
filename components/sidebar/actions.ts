@@ -1,8 +1,12 @@
 "use server";
 
 import { auth } from "@clerk/nextjs/server";
-import { connectionPool, FOLDER_CONTAINS_NAME } from "@/lib/surrealdb";
-import { FolderContains } from "@/lib/types";
+import {
+  COLLECTIONS_NAME,
+  connectionPool,
+  FOLDER_CONTAINS_NAME,
+} from "@/lib/surrealdb";
+import { Collection, FolderContains } from "@/lib/types";
 import { revalidateTag } from "next/cache";
 
 export async function UpdateDocumentName(id: string, name: string) {
@@ -66,6 +70,27 @@ export async function MoveDocument(id: string, folderId: string | null) {
     // language=SQL format=false
     await db.query(`RELATE ${folderId}->${FOLDER_CONTAINS_NAME}->${id}`);
     revalidateTag("documents");
+  } finally {
+    connectionPool.release(db);
+  }
+}
+
+export async function getCollections() {
+  const db = await connectionPool.acquire();
+  try {
+    return await db
+      .query<[Collection[]]>(`SELECT * FROM ${COLLECTIONS_NAME}`)
+      .then((result) => {
+        if (!result) return [];
+        const collections = result[0];
+        return collections.map((collection) => {
+          return {
+            id: collection.id.toString(),
+            name: collection.name,
+            createdAt: collection.createdAt,
+          };
+        });
+      });
   } finally {
     connectionPool.release(db);
   }
