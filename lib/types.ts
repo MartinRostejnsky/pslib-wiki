@@ -1,14 +1,14 @@
 import { RecordId } from "surrealdb";
 
 export type Document = {
-  id: string;
+  id: RecordId<"documents">;
   name: string;
   content: string;
   createdAt: Date;
 };
 
 export type Folder = {
-  id: string;
+  id: RecordId<"folders">;
   name: string;
   createdAt: Date;
 };
@@ -20,7 +20,7 @@ export type FolderContains = {
 };
 
 export type Collection = {
-  id: string;
+  id: RecordId<"collections">;
   name: string;
   createdAt: Date;
 };
@@ -35,8 +35,7 @@ export interface FolderDocuments extends Folder {
   documents: Document[];
 }
 
-export type CollectionContent = {
-  id: string;
+export interface CollectionContent extends Collection {
   folders: FolderDocuments[];
-  orphans: Document[];
-};
+  documents: Document[];
+}

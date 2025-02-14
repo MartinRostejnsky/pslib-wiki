@@ -5,9 +5,11 @@ import {
   COLLECTIONS_NAME,
   connectionPool,
   CONTAINS_NAME,
+  DOCUMENTS_NAME,
   FOLDER_CONTAINS_NAME,
+  FOLDERS_NAME,
 } from "@/lib/surrealdb";
-import { Collection, FolderContains } from "@/lib/types";
+import { Collection, FolderContains, CollectionContent } from "@/lib/types";
 import { revalidateTag } from "next/cache";
 
 export async function UpdateDocumentName(id: string, name: string) {
@@ -153,9 +155,17 @@ export async function MoveToCollection(
   }
 }
 
-export async function GetContent(collectionId: string) {
+export async function GetContent(
+  collectionId: string,
+): Promise<CollectionContent> {
+  if (collectionId === "") return {} as CollectionContent;
   const db = await connectionPool.acquire();
   try {
+    const result = await db.query<[CollectionContent[]]>(
+      `SELECT * FROM ${collectionId};`,
+    );
+    if (result[0].length === 0) return {} as CollectionContent;
+    return result[0][0];
   } finally {
     connectionPool.release(db);
   }
