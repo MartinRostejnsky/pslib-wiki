@@ -9,10 +9,10 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { ChevronDown } from "lucide-react";
-import { useAtom, useSetAtom } from "jotai";
+import { useAtom, useAtomValue, useSetAtom } from "jotai";
 import { collectionsAtom, selectedCollectionAtom } from "@/atoms";
-import { GetCollections, NewCollection } from "@/components/sidebar/actions";
-import { useEffect, useState } from "react";
+import { NewCollection } from "@/components/sidebar/actions";
+import { useState } from "react";
 import {
   Dialog,
   DialogClose,
@@ -26,21 +26,16 @@ import {
 import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
-import { useRouter } from "next/navigation";
 
 export default function Header() {
-  const [currentCollection] = useAtom(selectedCollectionAtom);
-  const [collections, setCollections] = useAtom(collectionsAtom);
-  useEffect(() => {
-    GetCollections().then((collections) => {
-      setCollections(collections);
-    });
-  }, []);
+  const [currentCollection, setCurrentCollection] = useAtom(
+    selectedCollectionAtom,
+  );
+  const collections = useAtomValue(collectionsAtom);
   const currentCollectionName =
     collections.find((el) => el.id.toString() === currentCollection)?.name ??
     "Select collection";
   const [newCollName, setNewCollName] = useState("");
-  const setCurrentCollection = useSetAtom(selectedCollectionAtom);
 
   return (
     <SidebarMenu>
@@ -95,7 +90,6 @@ export default function Header() {
                   onClick={async () => {
                     const collection = await NewCollection(newCollName);
                     if (!collection) return;
-                    setCollections((coll) => [...coll, collection]);
                     setCurrentCollection(collection.id);
                   }}
                 >

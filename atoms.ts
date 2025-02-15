@@ -1,8 +1,17 @@
 import { atom } from "jotai";
 import { atomWithStorage } from "jotai/utils";
-import { Collection, CollectionContent } from "@/lib/types";
+import { CollectionContent, Document, Folder } from "@/lib/types";
 
 export const selectedCollectionAtom = atomWithStorage("currentCollection", "");
-export const collectionsAtom = atom([] as Collection[]);
+export const currentCollectionAtom = atom({
+  id: "",
+  name: "",
+  folders: [],
+  documents: [],
+  createdAt: Date.prototype,
+} as CollectionContent);
 
-export const collectionContentsAtom = atom([] as CollectionContent[]);
+export const collectionsAtom = atom([] as CollectionContent[]);
+
+export const folders = atom([] as Folder[]);
+export const documents = atom([] as Document[]);

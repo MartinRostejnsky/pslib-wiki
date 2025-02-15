@@ -9,7 +9,7 @@ import {
   FOLDER_CONTAINS_NAME,
   FOLDERS_NAME,
 } from "@/lib/surrealdb";
-import { Collection, FolderContains, CollectionContent } from "@/lib/types";
+import { Collection, CollectionContent, FolderContains } from "@/lib/types";
 import { revalidateTag } from "next/cache";
 
 export async function UpdateDocumentName(id: string, name: string) {
@@ -83,6 +83,12 @@ export async function MoveDocument(id: string, folderId: string | null) {
 }
 
 export async function NewCollection(name: string) {
+  const { userId } = await auth();
+
+  if (!userId) {
+    return { message: "You must be signed in" };
+  }
+
   const db = await connectionPool.acquire();
   try {
     // language=SQL format=false
@@ -161,11 +167,50 @@ export async function GetContent(
   if (collectionId === "") return {} as CollectionContent;
   const db = await connectionPool.acquire();
   try {
-    const result = await db.query<[CollectionContent[]]>(
-      `SELECT * FROM ${collectionId};`,
-    );
-    if (result[0].length === 0) return {} as CollectionContent;
-    return result[0][0];
+    return await db
+      // language=SQL format=false
+      .query<[CollectionContent[]]>(
+        `SELECT *, (SELECT *, (SELECT * FROM ->${FOLDER_CONTAINS_NAME}->${DOCUMENTS_NAME}) AS documents
+         FROM ->${CONTAINS_NAME}->${FOLDERS_NAME}) AS folders, (
+         SELECT *
+         FROM ->${CONTAINS_NAME}->${DOCUMENTS_NAME}) AS documents
+         FROM ${COLLECTIONS_NAME}
+         WHERE id = ${collectionId};`,
+      )
+      .then((result) => {
+        if (!result) return {} as CollectionContent;
+        const collection = result[0][0];
+        if (!collection) return {} as CollectionContent;
+
+        return {
+          id: collection.id.toString(),
+          name: collection.name,
+          createdAt: collection.createdAt,
+          documents: collection.documents.map((doc) => {
+            return {
+              id: doc.id.toString(),
+              name: doc.name,
+              content: doc.content,
+              createdAt: doc.createdAt,
+            };
+          }),
+          folders: collection.folders.map((folder) => {
+            return {
+              id: folder.id.toString(),
+              name: folder.name,
+              createdAt: folder.createdAt,
+              documents: folder.documents.map((doc) => {
+                return {
+                  id: doc.id.toString(),
+                  name: doc.name,
+                  content: doc.content,
+                  createdAt: doc.createdAt,
+                };
+              }),
+            };
+          }),
+        };
+      });
   } finally {
     connectionPool.release(db);
   }

@@ -1,7 +1,6 @@
 import {
   COLLECTIONS_NAME,
   connectionPool,
-  CONTAINS_NAME,
   DOCUMENTS_NAME,
   FOLDERS_NAME,
 } from "@/lib/surrealdb";
