@@ -17,13 +17,16 @@ import { SidebarMenuButton } from "@/components/ui/sidebar";
 import { Plus } from "lucide-react";
 import { createFolder } from "@/app/actions";
 import { useRouter } from "next/navigation";
+import { useAtomValue } from "jotai/index";
+import { selectedCollectionAtom } from "@/atoms";
 
 export default function NewFolderButton() {
+  const selectedCollectionId = useAtomValue(selectedCollectionAtom);
   const [name, setName] = useState("");
   const router = useRouter();
 
   async function newFolder() {
-    await createFolder(name);
+    await createFolder(selectedCollectionId, name);
     router.refresh();
   }
 

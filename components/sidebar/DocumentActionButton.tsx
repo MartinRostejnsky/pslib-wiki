@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
+import { useAtom, useAtomValue } from "jotai";
 import {
   Dialog,
   DialogClose,
@@ -41,8 +42,10 @@ import { Button } from "@/components/ui/button";
 import {
   DeleteDocument,
   MoveDocument,
+  MoveToCollection,
   UpdateDocumentName,
 } from "@/components/sidebar/actions";
+import { collectionsAtom, currentCollectionAtom } from "@/atoms";
 
 export default function DocumentActionButton({
   item,
@@ -53,13 +56,17 @@ export default function DocumentActionButton({
 }) {
   const [name, setName] = useState("");
   const router = useRouter();
+  const collections = useAtomValue(collectionsAtom);
+  const [currentCollection, setCurrentCollection] = useAtom(
+    currentCollectionAtom,
+  );
 
   return (
     <Dialog>
       <AlertDialog>
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
-            <SidebarMenuAction className={"right-3 top-1"}>
+            <SidebarMenuAction className="right-3 top-1">
               <MoreHorizontal />
             </SidebarMenuAction>
           </DropdownMenuTrigger>
@@ -75,7 +82,7 @@ export default function DocumentActionButton({
               </DropdownMenuItem>
             </AlertDialogTrigger>
             <DropdownMenuSub>
-              <DropdownMenuSubTrigger>Move to</DropdownMenuSubTrigger>
+              <DropdownMenuSubTrigger>Move to Folder</DropdownMenuSubTrigger>
               <DropdownMenuPortal>
                 <DropdownMenuSubContent>
                   {folders.map((folder) => (
@@ -83,21 +90,153 @@ export default function DocumentActionButton({
                       key={folder.id}
                       onClick={async () => {
                         await MoveDocument(item.id, folder.id);
-                        router.refresh();
+
+                        const docIndex = currentCollection.documents.findIndex(
+                          (x) => x.id === item.id,
+                        );
+                        if (docIndex !== -1) {
+                          setCurrentCollection((prevState) => {
+                            const folderIndex = prevState.folders.findIndex(
+                              (x) => x.id === folder.id,
+                            );
+                            if (folderIndex === -1) return prevState;
+
+                            prevState.folders[folderIndex].documents.push(
+                              currentCollection.documents[docIndex],
+                            );
+                            prevState.documents.splice(docIndex, 1);
+
+                            return {
+                              ...prevState,
+                            };
+                          });
+                        } else {
+                          for (
+                            let i = 0;
+                            i < currentCollection.folders.length;
+                            i++
+                          ) {
+                            const folder = currentCollection.folders[i];
+                            const docIndex = folder.documents.findIndex(
+                              (x) => x.id === item.id,
+                            );
+                            if (docIndex === -1) continue;
+
+                            setCurrentCollection((prevState) => {
+                              const finalFolderId = prevState.folders.findIndex(
+                                (x) => x.id === folder.id,
+                              );
+                              if (finalFolderId === -1) return prevState;
+
+                              prevState.folders[finalFolderId].documents.push(
+                                prevState.folders[i].documents[docIndex],
+                              );
+                              prevState.folders[i].documents.splice(
+                                docIndex,
+                                1,
+                              );
+
+                              return {
+                                ...prevState,
+                              };
+                            });
+                          }
+                        }
                       }}
                     >
                       {folder.name}
                     </DropdownMenuItem>
                   ))}
                   <DropdownMenuItem
-                    key={"unassign"}
+                    key="unassign-folder"
                     onClick={async () => {
                       await MoveDocument(item.id, null);
-                      router.refresh();
+
+                      const docIndex = currentCollection.documents.findIndex(
+                        (x) => x.id === item.id,
+                      );
+                      if (docIndex !== -1) return;
+
+                      for (
+                        let i = 0;
+                        i < currentCollection.folders.length;
+                        i++
+                      ) {
+                        const folder = currentCollection.folders[i];
+                        const docIndex = folder.documents.findIndex(
+                          (x) => x.id === item.id,
+                        );
+
+                        if (docIndex === -1) continue;
+
+                        setCurrentCollection((prevState) => {
+                          prevState.documents.push(
+                            prevState.folders[i].documents[docIndex],
+                          );
+                          prevState.folders[i].documents.splice(docIndex, 1);
+
+                          return {
+                            ...prevState,
+                          };
+                        });
+                      }
                     }}
                   >
                     Unassign
                   </DropdownMenuItem>
+                </DropdownMenuSubContent>
+              </DropdownMenuPortal>
+            </DropdownMenuSub>
+            <DropdownMenuSub>
+              <DropdownMenuSubTrigger>
+                Move to Collection
+              </DropdownMenuSubTrigger>
+              <DropdownMenuPortal>
+                <DropdownMenuSubContent>
+                  {collections.map((collection) => (
+                    <DropdownMenuItem
+                      key={collection.id}
+                      onClick={() => {
+                        MoveToCollection(item.id, collection.id);
+
+                        const docIndex = currentCollection.documents.findIndex(
+                          (x) => x.id === item.id,
+                        );
+
+                        if (docIndex !== -1) {
+                          setCurrentCollection((prevState) => {
+                            prevState.documents.splice(docIndex, 1);
+
+                            return { ...prevState };
+                          });
+                        } else {
+                          for (
+                            let i = 0;
+                            i < currentCollection.folders.length;
+                            i++
+                          ) {
+                            const folder = currentCollection.folders[i];
+
+                            const docIndex = folder.documents.findIndex(
+                              (x) => x.id === item.id,
+                            );
+                            if (docIndex === -1) continue;
+
+                            setCurrentCollection((prevState) => {
+                              prevState.folders[i].documents.splice(
+                                docIndex,
+                                1,
+                              );
+
+                              return { ...prevState };
+                            });
+                          }
+                        }
+                      }}
+                    >
+                      {collection.name}
+                    </DropdownMenuItem>
+                  ))}
                 </DropdownMenuSubContent>
               </DropdownMenuPortal>
             </DropdownMenuSub>

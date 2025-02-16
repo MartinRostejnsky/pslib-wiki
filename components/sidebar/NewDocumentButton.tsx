@@ -17,15 +17,25 @@ import { SidebarMenuButton } from "@/components/ui/sidebar";
 import { Plus } from "lucide-react";
 import { createDocument } from "@/app/actions";
 import { useRouter } from "next/navigation";
+import { useAtomValue, useSetAtom } from "jotai";
+import { currentCollectionAtom, selectedCollectionAtom } from "@/atoms";
 
 export default function NewDocumentButton() {
+  const selectedCollectionId = useAtomValue(selectedCollectionAtom);
+  const setCurrentCollection = useSetAtom(currentCollectionAtom);
   const [name, setName] = useState("");
   const router = useRouter();
 
   async function newDocument() {
-    const insertedId = await createDocument(name);
-    if (insertedId === "") return;
-    router.push(`/doc/${insertedId.split(":")[1]}`);
+    const insertedDoc = await createDocument(selectedCollectionId, name);
+    if (!insertedDoc.id) return;
+    setCurrentCollection((prevState) => {
+      prevState.documents.push(insertedDoc);
+      return {
+        ...prevState,
+      };
+    });
+    router.push(`/doc/${insertedDoc.id.toString().split(":")[1]}`);
   }
 
   return (
