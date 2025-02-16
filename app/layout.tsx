@@ -11,6 +11,7 @@ import { dark } from "@clerk/themes";
 import AppSidebar from "@/components/sidebar/AppSidebar";
 import { Suspense } from "react";
 import { CSPostHogProvider, JotaiProvider } from "@/app/providers";
+import { WebVitals } from "@/app/web-vitals";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -46,6 +47,7 @@ export default function RootLayout({
               <body
                 className={`${geistSans.variable} ${geistMono.variable} dark bg-background antialiased`}
               >
+                <WebVitals />
                 <SidebarProvider>
                   <AppSidebar />
                   <SidebarInset>
