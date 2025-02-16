@@ -129,7 +129,9 @@ export async function GetCollections() {
             id: collection.id.toString(),
             name: collection.name,
             createdAt: collection.createdAt,
-          };
+            folders: [],
+            documents: [],
+          } as CollectionContent;
         });
       });
   } finally {

@@ -9,7 +9,7 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { ChevronDown } from "lucide-react";
-import { useAtom, useAtomValue, useSetAtom } from "jotai";
+import { useAtom, useAtomValue } from "jotai";
 import { collectionsAtom, selectedCollectionAtom } from "@/atoms";
 import { NewCollection } from "@/components/sidebar/actions";
 import { useState } from "react";

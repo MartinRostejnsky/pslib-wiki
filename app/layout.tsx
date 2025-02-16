@@ -11,8 +11,6 @@ import { dark } from "@clerk/themes";
 import AppSidebar from "@/components/sidebar/AppSidebar";
 import { Suspense } from "react";
 import { CSPostHogProvider, JotaiProvider } from "@/app/providers";
-import { DevTools } from "jotai-devtools";
-import Devtools from "@/components/Devtools";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",

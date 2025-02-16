@@ -12,7 +12,7 @@ import Header from "@/components/sidebar/Header";
 import DocumentsMenu from "@/components/sidebar/DocumentsMenu";
 import { useEffect } from "react";
 import { GetCollections, GetContent } from "@/components/sidebar/actions";
-import { useAtom, useAtomValue, useSetAtom } from "jotai";
+import { useAtomValue, useSetAtom } from "jotai";
 import {
   collectionsAtom,
   currentCollectionAtom,
@@ -21,42 +21,31 @@ import {
 
 export default function AppSidebar() {
   const currentCollectionId = useAtomValue(selectedCollectionAtom);
-  const [collectionContents, setCollectionContents] = useAtom(collectionsAtom);
+  const setCollectionContents = useSetAtom(collectionsAtom);
   const setCollection = useSetAtom(currentCollectionAtom);
 
   useEffect(() => {
     GetCollections().then((result) => {
-      for (let i = 0; i < result.length; i++) {
-        const collection = result[i];
-
-        if (collectionContents.findIndex((x) => x.id === collection.id) !== -1)
-          continue;
-
-        setCollectionContents((prevCollections) => [
-          ...prevCollections,
-          {
-            ...collection,
-            folders: [],
-            documents: [],
-          },
-        ]);
-      }
+      setCollectionContents(result);
     });
-  }, []);
+  }, [setCollectionContents]);
 
   useEffect(() => {
     GetContent(currentCollectionId).then((collection) => {
       if (!collection.id) return;
-      const existingIndex = collectionContents.findIndex(
-        (x) => x.id === collection.id,
-      );
-      if (existingIndex !== -1) {
-        collectionContents.splice(existingIndex, 1);
-      }
-      setCollectionContents([...collectionContents, collection]);
+      setCollectionContents((prevState) => {
+        const existingIndex = prevState.findIndex(
+          (x) => x.id === collection.id,
+        );
+        if (existingIndex !== -1) {
+          prevState.splice(existingIndex, 1);
+        }
+
+        return [...prevState, collection];
+      });
       setCollection(collection);
     });
-  }, [currentCollectionId]);
+  }, [currentCollectionId, setCollection, setCollectionContents]);
 
   return (
     <Sidebar>
