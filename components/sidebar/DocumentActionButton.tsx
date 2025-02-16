@@ -140,6 +140,8 @@ export default function DocumentActionButton({
                                 ...prevState,
                               };
                             });
+
+                            break;
                           }
                         }
                       }}
@@ -179,6 +181,7 @@ export default function DocumentActionButton({
                             ...prevState,
                           };
                         });
+                        break;
                       }
                     }}
                   >
@@ -266,7 +269,34 @@ export default function DocumentActionButton({
                 type="submit"
                 onClick={async () => {
                   await UpdateDocumentName(item.id, name);
-                  router.refresh();
+
+                  const docIndex = currentCollection.documents.findIndex(
+                    (x) => x.id === item.id,
+                  );
+                  if (docIndex !== -1)
+                    setCurrentCollection((prevState) => {
+                      prevState.documents[docIndex].name = name;
+
+                      return {
+                        ...prevState,
+                      };
+                    });
+
+                  for (let i = 0; i < currentCollection.folders.length; i++) {
+                    const folder = currentCollection.folders[i];
+
+                    const docIndex = folder.documents.findIndex(
+                      (x) => x.id === item.id,
+                    );
+                    if (docIndex === -1) continue;
+
+                    setCurrentCollection((prevState) => {
+                      prevState.folders[i].documents[docIndex].name = name;
+
+                      return { ...prevState };
+                    });
+                    break;
+                  }
                 }}
               >
                 Save changes
@@ -289,7 +319,32 @@ export default function DocumentActionButton({
             <AlertDialogAction
               onClick={async () => {
                 await DeleteDocument(item.id);
-                router.refresh();
+
+                const docIndex = currentCollection.documents.findIndex(
+                  (x) => x.id === item.id,
+                );
+                if (docIndex !== -1)
+                  setCurrentCollection((prevState) => {
+                    prevState.documents.splice(docIndex, 1);
+
+                    return { ...prevState };
+                  });
+
+                for (let i = 0; i < currentCollection.folders.length; i++) {
+                  const folder = currentCollection.folders[i];
+
+                  const docIndex = folder.documents.findIndex(
+                    (x) => x.id === item.id,
+                  );
+                  if (docIndex === -1) continue;
+
+                  setCurrentCollection((prevState) => {
+                    prevState.folders[i].documents.splice(docIndex, 1);
+
+                    return { ...prevState };
+                  });
+                  break;
+                }
               }}
             >
               Remove
