@@ -1,5 +1,8 @@
 import type { NextConfig } from "next";
 import path from "node:path";
+import { execSync } from "node:child_process";
+
+const GIT_HASH = execSync("git rev-parse --short HEAD").toString().trim();
 
 const nextConfig: NextConfig = {
   webpack: (config, { isServer }) => {
@@ -14,6 +17,9 @@ const nextConfig: NextConfig = {
   experimental: {
     ppr: true,
     dynamicIO: true,
+  },
+  env: {
+    NEXT_PUBLIC_GIT_HASH: GIT_HASH,
   },
 };
 

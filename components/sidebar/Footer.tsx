@@ -5,6 +5,7 @@ import { Button } from "@/components/ui/button";
 import NewDocumentButton from "@/components/sidebar/NewDocumentButton";
 import NewFolderButton from "@/components/sidebar/NewFolderButton";
 import { Suspense } from "react";
+import Link from "next/link";
 
 export default function Footer() {
   return (
@@ -32,6 +33,12 @@ export default function Footer() {
           />
         </SignedIn>
       </Suspense>
+      <Link
+        className="mt-2 text-center text-xs text-muted-foreground"
+        href={"https://github.com/Mapetr/pslib-wiki"}
+      >
+        {`Commit: ${process.env.NEXT_PUBLIC_GIT_HASH || "unknown"}  |  Env: ${process.env.NODE_ENV}`}
+      </Link>
     </div>
   );
 }
