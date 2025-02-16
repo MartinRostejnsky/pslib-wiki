@@ -1,15 +1,24 @@
 "use server";
 
 import { auth } from "@clerk/nextjs/server";
-import { connectionPool, DOCUMENTS_NAME, FOLDERS_NAME } from "@/lib/surrealdb";
+import {
+  connectionPool,
+  CONTAINS_NAME,
+  DOCUMENTS_NAME,
+  FOLDERS_NAME,
+} from "@/lib/surrealdb";
 import { Document, Folder } from "@/lib/types";
 import { revalidateTag } from "next/cache";
+import { stringToRecordId } from "@/lib/utils";
 
-export async function createDocument(name: string) {
+export async function createDocument(
+  collectionId: string,
+  name: string,
+): Promise<Document> {
   const { userId } = await auth();
 
   if (!userId) {
-    return "";
+    return {} as unknown as Document;
   }
 
   const db = await connectionPool.acquire();
@@ -23,14 +32,24 @@ export async function createDocument(name: string) {
     `,
       { name: name },
     );
+    await db.relate(
+      stringToRecordId(collectionId),
+      CONTAINS_NAME,
+      result[0].id,
+    );
     revalidateTag("documents");
-    return result[0].id.toString();
+    return {
+      id: result[0].id.toString(),
+      name: result[0].name,
+      content: result[0].content,
+      createdAt: result[0].createdAt,
+    };
   } finally {
     connectionPool.release(db);
   }
 }
 
-export async function createFolder(name: string) {
+export async function createFolder(collectionId: string, name: string) {
   const { userId } = await auth();
 
   if (!userId) {
@@ -42,6 +61,11 @@ export async function createFolder(name: string) {
     const [result] = await db.query<[Folder[]]>(
       `CREATE ${FOLDERS_NAME} SET name = $name`,
       { name: name },
+    );
+    await db.relate(
+      stringToRecordId(collectionId),
+      CONTAINS_NAME,
+      result[0].id,
     );
     revalidateTag("documents");
     return result[0].id.toString();

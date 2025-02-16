@@ -9,7 +9,12 @@ import {
   FOLDER_CONTAINS_NAME,
   FOLDERS_NAME,
 } from "@/lib/surrealdb";
-import { Collection, CollectionContent, FolderContains } from "@/lib/types";
+import {
+  Collection,
+  CollectionContent,
+  Contains,
+  FolderContains,
+} from "@/lib/types";
 import { revalidateTag } from "next/cache";
 
 export async function UpdateDocumentName(id: string, name: string) {
@@ -139,7 +144,16 @@ export async function MoveToCollection(
   const db = await connectionPool.acquire();
   try {
     // language=SQL format=false
-    const [collectionRelation] = await db.query<[FolderContains[]]>(
+    const [folderRelation] = await db.query<[FolderContains[]]>(
+      `SELECT * FROM ${FOLDER_CONTAINS_NAME} WHERE out = ${id}`,
+    );
+
+    if (folderRelation.length > 0)
+      // language=SQL format=false
+      await db.query(`DELETE ${folderRelation[0].id};`);
+
+    // language=SQL format=false
+    const [collectionRelation] = await db.query<[Contains[]]>(
       `SELECT *
        FROM ${CONTAINS_NAME}
        WHERE out = ${id}`,
