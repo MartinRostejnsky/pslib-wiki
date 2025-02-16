@@ -1,7 +1,6 @@
 "use client";
 
 import { useState } from "react";
-import { useRouter } from "next/navigation";
 import { useAtom, useAtomValue } from "jotai";
 import {
   Dialog,
@@ -55,7 +54,6 @@ export default function DocumentActionButton({
   folders: { id: string; name: string }[];
 }) {
   const [name, setName] = useState("");
-  const router = useRouter();
   const collections = useAtomValue(collectionsAtom);
   const [currentCollection, setCurrentCollection] = useAtom(
     currentCollectionAtom,
