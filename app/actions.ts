@@ -83,7 +83,9 @@ export async function saveDocument(id: string, content: string) {
 
   const db = await connectionPool.acquire();
   try {
-    await db.query(`UPDATE ${id} SET content = '${content}';`);
+    await db.query(`UPDATE ${id} SET content = $content;`, {
+      content: content,
+    });
     return true;
   } finally {
     connectionPool.release(db);

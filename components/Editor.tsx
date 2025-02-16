@@ -30,6 +30,7 @@ import { DragHandle } from "@tiptap-pro/extension-drag-handle-react";
 import { useDebouncedCallback } from "use-debounce";
 import { Placeholder } from "@tiptap/extension-placeholder";
 import { saveDocument } from "@/app/actions";
+import { BubbleMenu as BubbleMenuView } from "@/components/BubbleMenu";
 
 import "katex/dist/katex.min.css";
 import { Mathematics } from "@tiptap-pro/extension-mathematics";
@@ -63,6 +64,13 @@ const suggestions = createSuggestionsItems([
     searchTerms: ["heading", "h3"],
     command: ({ editor, range }) => {
       editor.chain().focus().deleteRange(range).setHeading({ level: 3 }).run();
+    },
+  },
+  {
+    title: "Code block",
+    searchTerms: ["code", "block"],
+    command: ({ editor, range }) => {
+      editor.chain().focus().deleteRange(range).toggleCodeBlock().run();
     },
   },
   {
@@ -246,26 +254,7 @@ export default function Editor({
       </DragHandle>
       {editor && (
         <BubbleMenuJsx editor={editor} tippyOptions={{ duration: 100 }}>
-          <div className="bubble-menu">
-            <button
-              onClick={() => editor.chain().focus().toggleBold().run()}
-              className={editor.isActive("bold") ? "is-active" : ""}
-            >
-              Bold
-            </button>
-            <button
-              onClick={() => editor.chain().focus().toggleItalic().run()}
-              className={editor.isActive("italic") ? "is-active" : ""}
-            >
-              Italic
-            </button>
-            <button
-              onClick={() => editor.chain().focus().toggleStrike().run()}
-              className={editor.isActive("strike") ? "is-active" : ""}
-            >
-              Strike
-            </button>
-          </div>
+          <BubbleMenuView editor={editor} />
         </BubbleMenuJsx>
       )}
       <SlashCmdProvider>
