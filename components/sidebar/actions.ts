@@ -91,7 +91,7 @@ export async function NewCollection(name: string) {
   const { userId } = await auth();
 
   if (!userId) {
-    return { message: "You must be signed in" };
+    return undefined;
   }
 
   const db = await connectionPool.acquire();
