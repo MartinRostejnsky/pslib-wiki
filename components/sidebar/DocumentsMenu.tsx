@@ -4,7 +4,7 @@ import { useAtomValue } from "jotai";
 import { currentCollectionAtom } from "@/atoms";
 import { SidebarMenu } from "@/components/ui/sidebar";
 import Folder from "@/components/sidebar/Folder";
-import DocumentButton from "@/components/sidebar/DocumentButton";
+import DocumentButton from "@/components/sidebar/document/DocumentButton";
 
 export default function DocumentsMenu() {
   const currentCollection = useAtomValue(currentCollectionAtom);

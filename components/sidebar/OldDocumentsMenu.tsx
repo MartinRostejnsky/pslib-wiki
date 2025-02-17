@@ -1,5 +1,5 @@
 import { SidebarMenu } from "@/components/ui/sidebar";
-import DocumentButton from "@/components/sidebar/DocumentButton";
+import DocumentButton from "@/components/sidebar/document/DocumentButton";
 import {
   connectionPool,
   DOCUMENTS_NAME,

@@ -10,7 +10,8 @@ import {
 import Link from "next/link";
 import { SignedIn } from "@clerk/nextjs";
 import { usePathname } from "next/navigation";
-import DocumentActionDialog from "./document/action/DocumentActionDialog";
+import DocumentActionDialog from "./action/DocumentActionDialog";
+import DocumentContextProvider from "./context/DocumentContextProvider";
 
 export default function DocumentButton({
   item,
@@ -26,37 +27,24 @@ export default function DocumentButton({
 
   const linkId = item.id.split(":")[1];
 
-  if (submenu) {
-    return (
-      <SidebarMenuSubItem className={"relative"}>
-        <SidebarMenuSubButton
+  const MenuItem = submenu ? SidebarMenuSubItem : SidebarMenuItem;
+  const MenuButton = submenu ? SidebarMenuSubButton : SidebarMenuButton;
+
+  return (
+    <DocumentContextProvider item={item} folders={folders}>
+      <MenuItem className={`${submenu && "relative" /*zkontrolovat ze to funguje*/}`}>
+        <MenuButton
           asChild
           isActive={pathname.split("/").pop() === linkId}
         >
           <Link href={`/doc/${linkId}`} onClick={() => setOpenMobile(false)}>
             {item.name}
           </Link>
-        </SidebarMenuSubButton>
+        </MenuButton>
         <SignedIn>
-          <DocumentActionDialog item={item} folders={folders} key={item.id} />
+          <DocumentActionDialog key={item.id} />
         </SignedIn>
-      </SidebarMenuSubItem>
-    );
-  }
-
-  return (
-    <SidebarMenuItem>
-      <SidebarMenuButton
-        asChild
-        isActive={pathname.split("/").pop() === linkId}
-      >
-        <Link href={`/doc/${linkId}`} onClick={() => setOpenMobile(false)}>
-          {item.name}
-        </Link>
-      </SidebarMenuButton>
-      <SignedIn>
-        <DocumentActionDialog item={item} folders={folders} key={item.id} />
-      </SignedIn>
-    </SidebarMenuItem>
+      </MenuItem>
+    </DocumentContextProvider>
   );
 }

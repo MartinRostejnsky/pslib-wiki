@@ -11,7 +11,7 @@ import {
   SidebarMenuSub,
 } from "@/components/ui/sidebar";
 import { ChevronDown } from "lucide-react";
-import DocumentButton from "@/components/sidebar/DocumentButton";
+import DocumentButton from "@/components/sidebar/document/DocumentButton";
 import { FolderDocuments } from "@/lib/types";
 import { usePathname } from "next/navigation";
 
