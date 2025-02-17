@@ -46,7 +46,7 @@ import {
 } from "@/components/sidebar/actions";
 import { collectionsAtom, currentCollectionAtom } from "@/atoms";
 
-export default function DocumentActionButton({
+export default function DocumentActionDialog({
   item,
   folders,
 }: {

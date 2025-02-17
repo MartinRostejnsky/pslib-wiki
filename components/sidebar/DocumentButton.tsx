@@ -9,8 +9,8 @@ import {
 } from "@/components/ui/sidebar";
 import Link from "next/link";
 import { SignedIn } from "@clerk/nextjs";
-import DocumentActionButton from "@/components/sidebar/DocumentActionButton";
 import { usePathname } from "next/navigation";
+import DocumentActionDialog from "./document/action/DocumentActionDialog";
 
 export default function DocumentButton({
   item,
@@ -38,7 +38,7 @@ export default function DocumentButton({
           </Link>
         </SidebarMenuSubButton>
         <SignedIn>
-          <DocumentActionButton item={item} folders={folders} key={item.id} />
+          <DocumentActionDialog item={item} folders={folders} key={item.id} />
         </SignedIn>
       </SidebarMenuSubItem>
     );
@@ -55,7 +55,7 @@ export default function DocumentButton({
         </Link>
       </SidebarMenuButton>
       <SignedIn>
-        <DocumentActionButton item={item} folders={folders} key={item.id} />
+        <DocumentActionDialog item={item} folders={folders} key={item.id} />
       </SignedIn>
     </SidebarMenuItem>
   );
